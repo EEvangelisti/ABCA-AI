@@ -216,3 +216,17 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# ============================================================
+# ABCA-AI local environments and runtime data
+# ============================================================
+
+# Project-specific Python environments
+python_venvs/
+
+# Experiment outputs
+outputs/
+runs/
+
+# Experiment logs
+run_*.log
