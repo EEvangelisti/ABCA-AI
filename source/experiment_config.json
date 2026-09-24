@@ -1,0 +1,169 @@
+{
+  "active_profile": "full_discovery_team",
+  "runtime": {
+    "max_turns": 300,
+    "command_timeout": 600,
+    "analysis_timeout": 600,
+    "max_output": 200000,
+    "max_file_size": 200000,
+    "max_analysis_script_size": 100000,
+    "max_analysis_read": 200000
+  },
+  "role_descriptions": {
+    "builder": "Scientific model-discovery specialist. Use this agent to analyze data, formulate or revise candidate mechanisms, fit local rules, and produce scientific model specifications.",
+    "mathematician": "Mathematical and stochastic-process specialist. Use this agent to identify formal structure in the observed dynamics and proposed models, analyze identifiability, compare alternative mathematical formulations, derive testable consequences, and determine whether a simpler formal description can explain the same empirical structure.",
+    "biologist": "Biological mechanism specialist. Use this agent to assess which variables and responses are biologically plausible for the motile organism, distinguish statistical description from mechanistic interpretation, propose biologically meaningful alternatives, and identify discriminating biological experiments or observations.",
+    "implementer": "Scientific software implementation specialist. Use this agent to turn the selected fitted model into a faithful executable ABCA implementation, preserving parameter provenance and verifying implementation equivalence.",
+    "critic": "Adversarial scientific reviewer. Use this agent to audit scientific reasoning, mathematical consistency, biological interpretation, implementation fidelity, model comparison, and validation.",
+    "optimizer": "Expert Python and algorithmic optimization specialist. Improves computational efficiency of analysis code while preserving the scientific computation, model class, fitting objective, validation design, parameter definitions, random seeds, and interpretation."
+  },
+  "toolsets": {
+    "builder_default": [
+      "list_input_files",
+      "read_input_file",
+      "inspect_csv",
+      "csv_column_summary",
+      "list_analysis_files",
+      "inspect_input_file",
+      "read_input_file_chunk",
+      "read_analysis_file",
+      "write_analysis_file",
+      "run_analysis_script",
+      "list_abca_files",
+      "read_abca_file",
+      "write_discovered_plugin_file",
+      "write_plugin_registry_file",
+      "copy_abca_output_to_analysis",
+      "run_dune_build",
+      "run_dune_command"
+    ],
+    "implementer_default": [
+      "list_input_files",
+      "read_input_file",
+      "inspect_input_file",
+      "read_input_file_chunk",
+      "list_analysis_files",
+      "read_analysis_file",
+      "write_analysis_file",
+      "run_analysis_script",
+      "list_abca_files",
+      "read_abca_file",
+      "write_discovered_plugin_file",
+      "write_plugin_registry_file",
+      "copy_abca_output_to_analysis",
+      "run_dune_build",
+      "run_dune_command"
+    ],
+    "critic_default": [
+      "list_input_files",
+      "read_input_file",
+      "inspect_input_file",
+      "inspect_csv",
+      "csv_column_summary",
+      "list_analysis_files",
+      "read_analysis_file",
+      "run_analysis_script",
+      "list_abca_files",
+      "read_abca_file",
+      "run_dune_build",
+      "run_dune_command"
+    ],
+    "mathematician_default": [
+      "list_input_files",
+      "read_input_file",
+      "inspect_input_file",
+      "read_input_file_chunk",
+      "inspect_csv",
+      "csv_column_summary",
+      "list_analysis_files",
+      "read_analysis_file",
+      "write_analysis_file",
+      "run_analysis_script"
+    ],
+    "biologist_default": [
+      "list_input_files",
+      "read_input_file",
+      "inspect_input_file",
+      "read_input_file_chunk",
+      "inspect_csv",
+      "csv_column_summary",
+      "list_analysis_files",
+      "read_analysis_file",
+      "write_analysis_file",
+      "run_analysis_script"
+    ],
+    "optimizer_default": [
+      "list_input_files",
+      "read_input_file",
+      "inspect_input_file",
+      "read_input_file_chunk",
+      "inspect_csv",
+      "csv_column_summary",
+      "list_analysis_files",
+      "read_analysis_file",
+      "write_analysis_file",
+      "run_analysis_script"
+    ]
+  },
+  "profiles": {
+    "full_discovery_team": {
+      "workflow": "full_discovery_team",
+      "prompt_file": "prompts/prompts_full_discovery_team.toml",
+      "agents": [
+        {
+          "id": "builder",
+          "role": "builder",
+          "model": "gpt-5.6-sol",
+          "prompt": "BUILDER_INSTRUCTIONS",
+          "toolset": "builder_default",
+          "max_turns": 90
+        },
+        {
+          "id": "mathematician",
+          "role": "mathematician",
+          "model": "gpt-5.6-sol",
+          "prompt": "MATHEMATICIAN_INSTRUCTIONS",
+          "toolset": "mathematician_default",
+          "max_turns": 70
+        },
+        {
+          "id": "biologist",
+          "role": "biologist",
+          "model": "gpt-5.6-sol",
+          "prompt": "BIOLOGIST_INSTRUCTIONS",
+          "toolset": "biologist_default",
+          "max_turns": 60
+        },
+        {
+          "id": "implementer",
+          "role": "implementer",
+          "model": "gpt-5.6-sol",
+          "prompt": "IMPLEMENTER_INSTRUCTIONS",
+          "toolset": "implementer_default",
+          "max_turns": 90
+        },
+        {
+          "id": "critic",
+          "role": "critic",
+          "model": "gpt-5.6-sol",
+          "prompt": "CRITIC_INSTRUCTIONS",
+          "toolset": "critic_default",
+          "max_turns": 70
+        },
+        {
+          "id": "optimizer",
+          "role": "optimizer",
+          "model": "gpt-5.6-sol",
+          "prompt": "OPTIMIZER_INSTRUCTIONS",
+          "toolset": "optimizer_default",
+          "max_turns": 70
+        }
+      ],
+      "orchestrator": {
+        "model": "gpt-5.6-sol",
+        "prompt": "ORCHESTRATOR_INSTRUCTIONS"
+      },
+      "initial_prompt": "INITIAL_EXPERIMENT_PROMPT"
+    }
+  }
+}
