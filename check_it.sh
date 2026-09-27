@@ -125,11 +125,18 @@ echo "========================================================================"
 echo "5. Bubblewrap / analysis sandbox smoke test"
 echo "========================================================================"
 
-SMOKE_SCRIPT="analysis_workspace/_sandbox_smoke_test.py"
-SMOKE_OUTPUT="analysis_workspace/_sandbox_smoke_test_output.txt"
+ANALYSIS_WORKSPACE="$("$AGENT_PY" - <<'PY'
+from source.config import ANALYSIS_DIR
+print(ANALYSIS_DIR)
+PY
+)"
+mkdir -p "$ANALYSIS_WORKSPACE"
+SMOKE_SCRIPT="$ANALYSIS_WORKSPACE/_sandbox_smoke_test.py"
+SMOKE_OUTPUT="$ANALYSIS_WORKSPACE/_sandbox_smoke_test_output.txt"
+SHELL_OUTPUT="$ANALYSIS_WORKSPACE/_shell_tool_smoke_output.txt"
 
 cleanup() {
-    rm -f "$SMOKE_SCRIPT" "$SMOKE_OUTPUT"
+    rm -f "$SMOKE_SCRIPT" "$SMOKE_OUTPUT" "$SHELL_OUTPUT"
 }
 trap cleanup EXIT
 
@@ -158,6 +165,44 @@ print("SANDBOX TEST PASSED")
 PY
 
 "$AGENT_PY" -m source.test_analysis_tool
+
+echo
+echo "========================================================================"
+echo "6. Shell tool functional test"
+echo "========================================================================"
+
+"$AGENT_PY" - <<'PY'
+from source.tools.shell_workspace import _run_workspace_command_impl
+
+result = _run_workspace_command_impl(
+    "printf 'SHELL_TOOL_OK\\n' | tee /work/_shell_tool_smoke_output.txt",
+    timeout_seconds=30,
+)
+print(result)
+if "EXIT CODE: 0" not in result or "SHELL_TOOL_OK" not in result:
+    raise SystemExit("Shell tool did not complete successfully")
+PY
+
+test "$(cat "$SHELL_OUTPUT")" = "SHELL_TOOL_OK"
+echo "shell tool write verified in analysis workspace"
+
+echo
+echo "========================================================================"
+echo "7. Europe PMC tool functional test"
+echo "========================================================================"
+
+"$AGENT_PY" - <<'PY'
+from source.tools.literature import _search, _record
+
+payload = _search("Phytophthora zoospore", 2)
+records = payload.get("resultList", {}).get("result", [])
+if not records or not records[0].get("title"):
+    raise SystemExit(f"Europe PMC returned no usable record: {payload}")
+record = _record(records[0])
+print("Europe PMC query OK; hits:", payload.get("hitCount"))
+print("first title:", record["title"])
+print("first identifier:", record.get("doi") or record.get("pmid"))
+PY
 
 
 echo
