@@ -41,6 +41,9 @@ from .input_data import (
     csv_column_summary,
 )
 
+from .shell_workspace import run_workspace_command
+from .literature import search_literature, get_literature_record
+
 
 __all__ = [
     # ABCA read access
@@ -71,4 +74,9 @@ __all__ = [
     "read_input_file_chunk",
     "inspect_csv",
     "csv_column_summary",
+
+    # Isolated shell and bounded literature access
+    "run_workspace_command",
+    "search_literature",
+    "get_literature_record",
 ]
