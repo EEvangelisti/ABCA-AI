@@ -9,7 +9,7 @@ from pathlib import Path
 
 SOURCE_DIR = Path(__file__).resolve().parent
 BASE_DIR = SOURCE_DIR.parent
-CONFIG_FILE = SOURCE_DIR / "experiment_config.json"
+CONFIG_FILE = SOURCE_DIR / "experiment_config_refinement.json"
 
 
 # ------------------------------------------------------------------
@@ -329,11 +329,11 @@ def get_agent_spec(agent_id):
 # Existing ABCA paths
 # ------------------------------------------------------------------
 
-ABCA_DIR = (BASE_DIR / "abca").resolve()
-INPUT_DATA_DIR = (BASE_DIR / "input_data").resolve()
-ANALYSIS_DIR = (BASE_DIR / "analysis_workspace").resolve()
+ABCA_DIR = (BASE_DIR / "runs" / "input_data" / "ABCA").resolve()
+INPUT_DATA_DIR = (BASE_DIR / "runs" / "input_data").resolve()
+ANALYSIS_DIR = (BASE_DIR / "runs" / "analysis_workspace").resolve()
 
-PLUGIN_NAME = "discovered_swimming"
+PLUGIN_NAME = "refined_zoospore_model"
 PLUGIN_DIR = (ABCA_DIR / "plugins" / PLUGIN_NAME).resolve()
 REGISTRY_DIR = (ABCA_DIR / "plugin_registry").resolve()
 
