@@ -1,5 +1,4 @@
 {
-  "active_profile": "full_discovery_team",
   "runtime": {
     "max_turns": 300,
     "command_timeout": 600,
@@ -18,7 +17,7 @@
     "optimizer": "Expert Python and algorithmic optimization specialist. Improves computational efficiency of analysis code while preserving the scientific computation, model class, fitting objective, validation design, parameter definitions, random seeds, and interpretation."
   },
   "toolsets": {
-    "builder_default": [
+    "builder": [
       "list_input_files",
       "read_input_file",
       "inspect_csv",
@@ -37,7 +36,7 @@
       "run_dune_build",
       "run_dune_command"
     ],
-    "implementer_default": [
+    "implementer": [
       "list_input_files",
       "read_input_file",
       "inspect_input_file",
@@ -54,7 +53,7 @@
       "run_dune_build",
       "run_dune_command"
     ],
-    "critic_default": [
+    "critic": [
       "list_input_files",
       "read_input_file",
       "inspect_input_file",
@@ -68,7 +67,7 @@
       "run_dune_build",
       "run_dune_command"
     ],
-    "mathematician_default": [
+    "mathematician": [
       "list_input_files",
       "read_input_file",
       "inspect_input_file",
@@ -80,7 +79,7 @@
       "write_analysis_file",
       "run_analysis_script"
     ],
-    "biologist_default": [
+    "biologist": [
       "list_input_files",
       "read_input_file",
       "inspect_input_file",
@@ -92,7 +91,7 @@
       "write_analysis_file",
       "run_analysis_script"
     ],
-    "optimizer_default": [
+    "optimizer": [
       "list_input_files",
       "read_input_file",
       "inspect_input_file",
@@ -106,16 +105,15 @@
     ]
   },
   "profiles": {
-    "full_discovery_team": {
-      "workflow": "full_discovery_team",
-      "prompt_file": "prompts/prompts_full_discovery_team.toml",
+    "discovery": {
+      "instructions": "discovery.toml",
       "agents": [
         {
           "id": "builder",
           "role": "builder",
           "model": "gpt-5.6-sol",
           "prompt": "BUILDER_INSTRUCTIONS",
-          "toolset": "builder_default",
+          "toolset": "builder",
           "max_turns": 90
         },
         {
@@ -123,7 +121,7 @@
           "role": "mathematician",
           "model": "gpt-5.6-sol",
           "prompt": "MATHEMATICIAN_INSTRUCTIONS",
-          "toolset": "mathematician_default",
+          "toolset": "mathematician",
           "max_turns": 70
         },
         {
@@ -131,7 +129,7 @@
           "role": "biologist",
           "model": "gpt-5.6-sol",
           "prompt": "BIOLOGIST_INSTRUCTIONS",
-          "toolset": "biologist_default",
+          "toolset": "biologist",
           "max_turns": 60
         },
         {
@@ -139,7 +137,7 @@
           "role": "implementer",
           "model": "gpt-5.6-sol",
           "prompt": "IMPLEMENTER_INSTRUCTIONS",
-          "toolset": "implementer_default",
+          "toolset": "implementer",
           "max_turns": 90
         },
         {
@@ -147,7 +145,7 @@
           "role": "critic",
           "model": "gpt-5.6-sol",
           "prompt": "CRITIC_INSTRUCTIONS",
-          "toolset": "critic_default",
+          "toolset": "critic",
           "max_turns": 70
         },
         {
@@ -155,7 +153,7 @@
           "role": "optimizer",
           "model": "gpt-5.6-sol",
           "prompt": "OPTIMIZER_INSTRUCTIONS",
-          "toolset": "optimizer_default",
+          "toolset": "optimizer",
           "max_turns": 70
         }
       ],

@@ -441,4 +441,99 @@ At the same time, actively consider whether the workflow itself yields a genuine
 Avoid process bloat. Agents should produce concise actionable outputs. Do not repeatedly ask agents to summarize one another.
 
 The final manuscript should be clear enough that a human scientist can inspect, revise, and eventually submit it to an appropriate peer-reviewed journal.
+
+MANUSCRIPT COMPLETENESS AND SCIENTIFIC PURPOSE
+
+You are responsible not only for coordinating the agents, but also for ensuring
+that the final manuscript is a complete, substantial, publication-ready scientific
+paper rather than a minimal technical report.
+
+Before freezing the manuscript, you MUST ensure all of the following:
+
+1. SCIENTIFIC PURPOSE
+The manuscript must clearly answer:
+- Why does this study exist?
+- What scientific problem or gap does it address?
+- What does it add beyond previous work?
+- Why should a reader care about the result?
+
+Conservatism must not erase significance. If strong mechanistic or novelty claims
+are unsupported, work with Thinker, PubCrawler, CatchySentencer, and Writer to
+identify the strongest defensible contribution supported by the evidence.
+
+The manuscript must distinguish carefully between:
+- what is genuinely new,
+- what confirms or extends previous work,
+- what is methodological,
+- what is biologically informative,
+- and what remains unresolved.
+
+Do not manufacture significance, but do not allow the manuscript to become a
+mere catalogue of limitations.
+
+2. MANUSCRIPT DEPTH
+The final output must be developed as a full scientific article, with sufficient
+detail in Introduction, Methods, Results, and Discussion for a reader to understand
+the scientific question, analyses, results, interpretation, limitations, and broader
+implications.
+
+Do not accept an unnecessarily compressed manuscript when the available analyses,
+data, literature, or methodological history support a more informative presentation.
+
+3. FIGURES ARE MANDATORY
+You MUST invoke Illustrator during every complete manuscript-production workflow.
+
+A manuscript cannot be frozen without a figure set.
+
+Target at least 3-4 substantive main figures, unless the available evidence makes
+this scientifically impossible. Figures must communicate results, not merely
+decorate the manuscript.
+
+Ask Illustrator, in consultation with Analyst and Thinker, to determine the most
+informative figure structure. Candidate figure functions include:
+- experimental dataset and movement phenomenology,
+- model definitions and/or model-discovery workflow,
+- held-out model comparison and robustness analyses,
+- experimental-versus-simulation validation and model limitations,
+- when scientifically useful, the AI-assisted scientific workflow itself.
+
+Illustrator must use actual data and verified analysis outputs whenever quantitative
+figures are possible.
+
+Each figure must have:
+- a clear scientific purpose,
+- interpretable panels,
+- appropriate labels and units,
+- a complete caption,
+- and an explicit connection to the Results text.
+
+4. FIGURE-TEXT INTEGRATION
+After Illustrator produces the figures, Writer MUST integrate them into the
+manuscript and explain the scientific result shown by each figure.
+
+CatchySentencer should then improve the corresponding Results and Discussion
+transitions without changing their scientific meaning.
+
+Reviewer MUST audit the figures as part of the manuscript:
+- data-to-figure consistency,
+- figure-to-text consistency,
+- labels and units,
+- statistical representation,
+- captions,
+- and whether conclusions are supported by what is actually shown.
+
+5. FINAL COMPLETENESS GATE
+Do not freeze the manuscript until:
+- the scientific contribution is explicitly articulated,
+- the manuscript is sufficiently developed,
+- PubCrawler has checked the relevant literature,
+- Illustrator has produced the required figure set,
+- Writer has integrated those figures,
+- and Reviewer has audited the complete manuscript and figures.
+
+If any of these elements is missing, continue the workflow rather than producing
+the final report.
+
+Before finalizing, ensure that the manuscript is valid Pandoc-compatible Markdown
+and that all LaTeX math delimiters are balanced.
 """
