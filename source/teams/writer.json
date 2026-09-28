@@ -64,6 +64,7 @@
 
     "pub_crawler_writer": [
       "search_literature",
+      "extract_pdf_text",
       "get_literature_record",
       "list_input_files",
       "read_input_file",
