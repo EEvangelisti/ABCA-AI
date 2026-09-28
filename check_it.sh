@@ -204,7 +204,61 @@ echo "shell tool write verified in analysis workspace"
 
 echo
 echo "========================================================================"
-echo "7. Europe PMC tool functional test"
+echo "7. ABCA build inside the actual agent shell (modelling team)"
+echo "========================================================================"
+
+if [[ "$TEAM" == "modelling" ]]; then
+"$AGENT_PY" - "${CONFIG_ARGS[@]}" <<'PY'
+from source.config import ANALYSIS_TIMEOUT
+from source.tools.shell_workspace import _run_workspace_command_impl
+
+command = r'''set -euo pipefail
+printf 'ABCA toolchain inside isolated shell:\n'
+for executable in dune ocamlc; do
+    if ! command -v "$executable"; then
+        printf 'MISSING: %s is not on the isolated shell PATH\n' "$executable" >&2
+        exit 20
+    fi
+done
+dune --version
+ocamlc -version
+
+if [[ -f /data/ABCA/dune-project ]]; then
+    source_dir=/data/ABCA
+else
+    printf 'ABCA repository not found at /data/ABCA (expected dune-project).\n' >&2
+    printf 'Visible candidate dune-project files:\n' >&2
+    find /data -maxdepth 4 -name dune-project -print 2>/dev/null | head -20 >&2
+    exit 21
+fi
+
+build_dir=$(mktemp -d /work/abca-build-check.XXXXXXXX)
+trap 'rm -rf "$build_dir"' EXIT
+cp -a "$source_dir"/. "$build_dir"/
+cd "$build_dir"
+printf 'Building copied ABCA repository from %s\n' "$source_dir"
+dune build --display short
+printf 'ABCA_BUILD_OK\n'
+'''
+
+result = _run_workspace_command_impl(
+    command, timeout_seconds=min(180, ANALYSIS_TIMEOUT)
+)
+print(result)
+if "EXIT CODE: 0" not in result or "ABCA_BUILD_OK" not in result:
+    raise SystemExit(
+        "ABCA could not be built inside run_workspace_command. "
+        "Inspect the toolchain, path, dependencies or timeout above."
+    )
+PY
+else
+    echo "Skipped: ABCA build check applies to TEAM=modelling."
+fi
+
+
+echo
+echo "========================================================================"
+echo "8. Europe PMC tool functional test"
 echo "========================================================================"
 
 "$AGENT_PY" - "${CONFIG_ARGS[@]}" <<'PY'
