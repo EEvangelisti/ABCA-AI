@@ -27,7 +27,7 @@ echo "========================================================================"
 "$AGENT_PY" -m compileall -q source
 echo "source compileall OK"
 
-"$AGENT_PY" "${CONFIG_ARGS[@]}" - <<'PY'
+"$AGENT_PY" - "${CONFIG_ARGS[@]}" <<'PY'
 import source.config as config
 
 print("config import OK")
@@ -50,7 +50,7 @@ echo "========================================================================"
 echo "2. Tool registry and JSON toolsets"
 echo "========================================================================"
 
-"$AGENT_PY" "${CONFIG_ARGS[@]}" - <<'PY'
+"$AGENT_PY" - "${CONFIG_ARGS[@]}" <<'PY'
 import source.config as config
 from source.agents.team import resolve_tool
 
@@ -90,7 +90,7 @@ echo "========================================================================"
 echo "3. Team and orchestrator construction"
 echo "========================================================================"
 
-"$AGENT_PY" "${CONFIG_ARGS[@]}" - <<'PY'
+"$AGENT_PY" - "${CONFIG_ARGS[@]}" <<'PY'
 import source.config as config
 from source.agents.team import create_team
 from source.agents.orchestrator import make_orchestrator
@@ -141,7 +141,7 @@ echo "========================================================================"
 echo "5. Bubblewrap / analysis sandbox smoke test"
 echo "========================================================================"
 
-ANALYSIS_WORKSPACE="$("$AGENT_PY" "${CONFIG_ARGS[@]}" - <<'PY'
+ANALYSIS_WORKSPACE="$("$AGENT_PY" - "${CONFIG_ARGS[@]}" <<'PY'
 from source.config import ANALYSIS_DIR
 print(ANALYSIS_DIR)
 PY
@@ -187,7 +187,7 @@ echo "========================================================================"
 echo "6. Shell tool functional test"
 echo "========================================================================"
 
-"$AGENT_PY" "${CONFIG_ARGS[@]}" - <<'PY'
+"$AGENT_PY" - "${CONFIG_ARGS[@]}" <<'PY'
 from source.tools.shell_workspace import _run_workspace_command_impl
 
 result = _run_workspace_command_impl(
@@ -207,7 +207,7 @@ echo "========================================================================"
 echo "7. Europe PMC tool functional test"
 echo "========================================================================"
 
-"$AGENT_PY" "${CONFIG_ARGS[@]}" - <<'PY'
+"$AGENT_PY" - "${CONFIG_ARGS[@]}" <<'PY'
 from source.tools.literature import _search, _record
 
 payload = _search("Phytophthora zoospore", 2)
