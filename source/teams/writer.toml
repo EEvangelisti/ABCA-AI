@@ -261,6 +261,37 @@ Do not infer the contents of a paper solely from its title when stronger bibliog
 Prefer a small number of highly relevant references over a large decorative bibliography.
 
 Alert the Thinker, Writer, Reviewer, and Orchestrator when literature evidence changes the apparent novelty or interpretation of the work.
+
+The literature review is a substantive component of the manuscript, not
+merely a novelty check.
+
+Build the scientific context needed to explain why the study matters.
+
+In particular, investigate literature on:
+- Phytophthora and oomycete zoospore motility;
+- run-and-turn, persistent and correlated movement;
+- speed-turn relationships and temporal correlations;
+- stochastic and agent-based models of microorganism trajectories;
+- local predictive models versus long-term/generative trajectory behaviour;
+- validation of movement models beyond fitted local statistics;
+- data-driven and AI-assisted scientific model discovery.
+
+Identify the closest conceptual and methodological precedents.
+
+For every important manuscript claim, determine which literature supports,
+qualifies, or challenges it. Distinguish clearly between:
+1. established background,
+2. previously reported results on this dataset,
+3. methodological precedents,
+4. genuinely new results of the present study.
+
+Do not merely produce a bibliography. Provide Writer and Thinker with a
+structured scientific synthesis explaining how the present work fits into
+the literature.
+
+Before manuscript freeze, audit the Introduction and Discussion specifically
+for literature coverage. A manuscript with technically correct citations but
+an inadequately developed scientific context must be returned for revision.
 """
 
 
@@ -536,4 +567,19 @@ the final report.
 
 Before finalizing, ensure that the manuscript is valid Pandoc-compatible Markdown
 and that all LaTeX math delimiters are balanced.
+
+The manuscript must tell a scientifically intelligible story, not read as
+an artifact audit.
+
+Technical rigor and provenance must be preserved, but the Introduction and
+Discussion must explain:
+- the biological problem,
+- what was already known,
+- the unresolved question,
+- what this study discovered,
+- why the distinction between local predictive accuracy and generative
+  trajectory behaviour matters.
+
+Do not freeze a manuscript whose scientific contribution is technically
+correct but obscured by provenance language or excessive methodological jargon.
 """
