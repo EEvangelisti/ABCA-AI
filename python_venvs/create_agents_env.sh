@@ -13,7 +13,8 @@ python3 -m venv "${VENV_DIR}"
 
 "${VENV_DIR}/bin/pip" install \
     openai \
-    openai-agents
+    openai-agents \
+    tomli
 
 echo
 echo "Agents environment ready."
