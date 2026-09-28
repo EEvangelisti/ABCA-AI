@@ -1,7 +1,6 @@
 import json
 import shutil
 from pathlib import Path
-from datetime import datetime
 
 import source.config as config
 
@@ -107,7 +106,7 @@ def main():
     )
 
     # ------------------------------------------------------------------
-    # Build the active team from experiment_config.json
+    # Config has already selected the JSON/TOML pair from CLI arguments.
     # ------------------------------------------------------------------
 
     team = create_team()
@@ -123,6 +122,7 @@ def main():
     print("=" * 72)
 
     print(f"Profile    : {config.ACTIVE_PROFILE_NAME}")
+    print(f"Config     : {config.CONFIG_FILE}")
     print(f"Workflow   : {config.WORKFLOW}")
     print(
         "Agents     : "
