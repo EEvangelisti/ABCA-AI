@@ -50,55 +50,55 @@ def extract_pdf_text(path: str) -> str:
       pdf_path = (PDF_ROOT / path).resolve()
 
       if not pdf_path.is_relative_to(PDF_ROOT):
-          return "Access denied: PDF must be inside the input-data directory."
+        return "Access denied: PDF must be inside the input-data directory."
 
-        if pdf_path.suffix.lower() != ".pdf":
-            return "Invalid file: expected a PDF."
+      if pdf_path.suffix.lower() != ".pdf":
+          return "Invalid file: expected a PDF."
 
-        if not pdf_path.is_file():
-            return f"PDF not found: {path}"
+      if not pdf_path.is_file():
+          return f"PDF not found: {path}"
 
-        reader = PdfReader(str(pdf_path))
+      reader = PdfReader(str(pdf_path))
 
-        if len(reader.pages) > MAX_PDF_PAGES:
-            return (
-                f"PDF has {len(reader.pages)} pages; "
-                f"maximum allowed is {MAX_PDF_PAGES}."
-            )
+      if len(reader.pages) > MAX_PDF_PAGES:
+          return (
+              f"PDF has {len(reader.pages)} pages; "
+              f"maximum allowed is {MAX_PDF_PAGES}."
+          )
 
-        chunks = []
-        total_chars = 0
+      chunks = []
+      total_chars = 0
 
-        for page_number, page in enumerate(reader.pages, start=1):
-            text = page.extract_text() or ""
+      for page_number, page in enumerate(reader.pages, start=1):
+          text = page.extract_text() or ""
 
-            remaining = MAX_PDF_TEXT_CHARS - total_chars
-            if remaining <= 0:
-                break
+          remaining = MAX_PDF_TEXT_CHARS - total_chars
+          if remaining <= 0:
+              break
 
-            text = text[:remaining]
+          text = text[:remaining]
 
-            chunks.append(
-                f"\n--- PAGE {page_number} ---\n{text}"
-            )
+          chunks.append(
+              f"\n--- PAGE {page_number} ---\n{text}"
+          )
 
-            total_chars += len(text)
+          total_chars += len(text)
 
-        extracted = "".join(chunks).strip()
+      extracted = "".join(chunks).strip()
 
-        if not extracted:
-            return (
-                "No extractable text found in PDF. "
-                "The document may be scanned or image-only."
-            )
+      if not extracted:
+          return (
+              "No extractable text found in PDF. "
+              "The document may be scanned or image-only."
+          )
 
-        if total_chars >= MAX_PDF_TEXT_CHARS:
-            extracted += (
-                f"\n\n[TEXT TRUNCATED AT "
-                f"{MAX_PDF_TEXT_CHARS:,} CHARACTERS]"
-            )
+      if total_chars >= MAX_PDF_TEXT_CHARS:
+          extracted += (
+              f"\n\n[TEXT TRUNCATED AT "
+              f"{MAX_PDF_TEXT_CHARS:,} CHARACTERS]"
+          )
 
-        return extracted
+      return extracted
 
     except Exception as exc:
         return f"PDF extraction failed: {exc}"
