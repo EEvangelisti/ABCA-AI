@@ -1,5 +1,10 @@
 import json
-import tomllib
+import argparse
+import re
+try:
+    import tomllib
+except ModuleNotFoundError:
+    import tomli as tomllib
 from pathlib import Path
 
 
@@ -9,7 +14,29 @@ from pathlib import Path
 
 SOURCE_DIR = Path(__file__).resolve().parent
 BASE_DIR = SOURCE_DIR.parent
-CONFIG_FILE = SOURCE_DIR / "experiment_config_refinement.json"
+
+def _arguments():
+    parser = argparse.ArgumentParser(description="Run an ABCA agent team")
+    parser.add_argument("--team", required=True, help="Load teams/NAME.json")
+    parser.add_argument("--teams-dir", type=Path, default=SOURCE_DIR / "teams")
+    parser.add_argument("--profile", help="Select a profile when the team JSON defines several")
+    parser.add_argument("--set", action="append", default=[], metavar="KEY=JSON",
+                        help="Override a JSON value by dotted key, e.g. runtime.max_turns=20; repeatable")
+    for name in ("max_turns", "command_timeout", "analysis_timeout", "max_output",
+                 "max_file_size", "max_analysis_script_size", "max_analysis_read"):
+        parser.add_argument("--" + name.replace("_", "-"), type=int)
+    for name in ("abca_dir", "input_data_dir", "analysis_dir", "plugin_dir",
+                 "registry_dir", "agents_python", "analysis_python_prefix", "analysis_python"):
+        parser.add_argument("--" + name.replace("_", "-"), type=Path)
+    parser.add_argument("--plugin-name")
+    return parser.parse_args()
+
+
+ARGS = _arguments()
+if ARGS.team and not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]*", ARGS.team):
+    raise SystemExit("--team must be a simple name (letters, digits, _ or -)")
+TEAMS_DIR = ARGS.teams_dir.expanduser().resolve()
+CONFIG_FILE = (TEAMS_DIR / f"{ARGS.team}.json").expanduser().resolve()
 
 
 # ------------------------------------------------------------------
@@ -19,22 +46,66 @@ CONFIG_FILE = SOURCE_DIR / "experiment_config_refinement.json"
 with CONFIG_FILE.open("r", encoding="utf-8") as f:
     EXPERIMENT_CONFIG = json.load(f)
 
+for assignment in ARGS.set:
+    key, separator, raw = assignment.partition("=")
+    if not separator or not key:
+        raise SystemExit(f"Invalid --set {assignment!r}; expected KEY=JSON")
+    try:
+        value = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise SystemExit(f"Invalid JSON in --set {assignment!r}: {exc}") from exc
+    target = EXPERIMENT_CONFIG
+    parts = key.split(".")
+    try:
+        for part in parts[:-1]:
+            target = target[int(part)] if isinstance(target, list) else target[part]
+        last = parts[-1]
+        index = int(last) if isinstance(target, list) else last
+        if (index not in range(len(target)) if isinstance(target, list)
+                else index not in target):
+            raise KeyError(last)
+        target[index] = value
+    except (KeyError, IndexError, ValueError, TypeError) as exc:
+        raise SystemExit(f"Unknown --set key: {key}") from exc
+
+for _name in ("max_turns", "command_timeout", "analysis_timeout", "max_output",
+              "max_file_size", "max_analysis_script_size", "max_analysis_read"):
+    if getattr(ARGS, _name) is not None:
+        EXPERIMENT_CONFIG["runtime"][_name] = getattr(ARGS, _name)
+
 
 # ------------------------------------------------------------------
 # Active profile
 # ------------------------------------------------------------------
 
-ACTIVE_PROFILE_NAME = EXPERIMENT_CONFIG["active_profile"]
+try:
+    PROFILES = EXPERIMENT_CONFIG["profiles"]
+except KeyError as exc:
+    raise RuntimeError(f"Team configuration {CONFIG_FILE} does not define 'profiles'.") from exc
+
+if not isinstance(PROFILES, dict) or not PROFILES:
+    raise RuntimeError(f"Team configuration {CONFIG_FILE} must define at least one profile.")
+
+if ARGS.profile is not None:
+    ACTIVE_PROFILE_NAME = ARGS.profile
+elif len(PROFILES) == 1:
+    ACTIVE_PROFILE_NAME = next(iter(PROFILES))
+else:
+    raise RuntimeError(
+        f"Team {ARGS.team!r} defines several profiles "
+        f"({', '.join(PROFILES)}); select one with --profile NAME."
+    )
 
 try:
-    ACTIVE_PROFILE = EXPERIMENT_CONFIG["profiles"][ACTIVE_PROFILE_NAME]
+    ACTIVE_PROFILE = PROFILES[ACTIVE_PROFILE_NAME]
 except KeyError as exc:
     raise RuntimeError(
-        f"Unknown active profile {ACTIVE_PROFILE_NAME!r}. "
-        f"Available profiles: {', '.join(EXPERIMENT_CONFIG['profiles'])}"
+        f"Unknown profile {ACTIVE_PROFILE_NAME!r} for team {ARGS.team!r}. "
+        f"Available profiles: {', '.join(PROFILES)}"
     ) from exc
 
-WORKFLOW = ACTIVE_PROFILE["workflow"]
+# Optional descriptive workflow name; default to the selected profile.
+WORKFLOW = ACTIVE_PROFILE.get("workflow", ACTIVE_PROFILE_NAME)
 ACTIVE_AGENTS = ACTIVE_PROFILE["agents"]
 
 AGENT_SPECS = {
@@ -208,34 +279,33 @@ AGENT_MAX_TURNS = {
 # ------------------------------------------------------------------
 
 try:
-    PROMPT_FILE_RELATIVE = ACTIVE_PROFILE["prompt_file"]
+    PROMPT_FILE_RELATIVE = ACTIVE_PROFILE["instructions"]
 except KeyError as exc:
     raise RuntimeError(
-        f"Profile {ACTIVE_PROFILE_NAME!r} does not define 'prompt_file'."
+        f"Profile {ACTIVE_PROFILE_NAME!r} does not define 'instructions'."
     ) from exc
 
-PROMPT_FILE = (SOURCE_DIR / PROMPT_FILE_RELATIVE).resolve()
-ACTIVE_PROMPTS = PROMPT_FILE_RELATIVE
+PROMPT_FILE = (TEAMS_DIR / PROMPT_FILE_RELATIVE).expanduser().resolve()
+ACTIVE_PROMPTS = str(PROMPT_FILE)
 
 if PROMPT_FILE.suffix.lower() != ".toml":
     raise RuntimeError(
-        f"Prompt file for profile {ACTIVE_PROFILE_NAME!r} must be TOML, "
+        f"Instructions file for profile {ACTIVE_PROFILE_NAME!r} must be TOML, "
         f"got: {PROMPT_FILE_RELATIVE!r}"
     )
 
 if not PROMPT_FILE.exists():
     raise RuntimeError(
-        f"Prompt file does not exist for profile {ACTIVE_PROFILE_NAME!r}: "
+        f"Instructions file does not exist for profile {ACTIVE_PROFILE_NAME!r}: "
         f"{PROMPT_FILE}"
     )
 
 with PROMPT_FILE.open("rb") as f:
     PROMPTS = tomllib.load(f)
 
-
 def get_prompt(prompt_name):
     """
-    Load one prompt string from the active TOML prompt file.
+    Load one prompt string from the active TOML instructions file.
     """
     try:
         prompt = PROMPTS[prompt_name]
@@ -329,39 +399,40 @@ def get_agent_spec(agent_id):
 # Existing ABCA paths
 # ------------------------------------------------------------------
 
-ABCA_DIR = (BASE_DIR / "runs" / "input_data" / "ABCA").resolve()
-INPUT_DATA_DIR = (BASE_DIR / "runs" / "input_data").resolve()
-ANALYSIS_DIR = (BASE_DIR / "runs" / "analysis_workspace").resolve()
+ABCA_DIR = (ARGS.abca_dir or BASE_DIR / "runs" / "input_data" / "ABCA").expanduser().resolve()
+INPUT_DATA_DIR = (ARGS.input_data_dir or BASE_DIR / "runs" / "input_data").expanduser().resolve()
+ANALYSIS_DIR = (ARGS.analysis_dir or BASE_DIR / "runs" / "analysis_workspace").expanduser().resolve()
 
-PLUGIN_NAME = "refined_zoospore_model"
-PLUGIN_DIR = (ABCA_DIR / "plugins" / PLUGIN_NAME).resolve()
-REGISTRY_DIR = (ABCA_DIR / "plugin_registry").resolve()
+PLUGIN_NAME = ARGS.plugin_name or "refined_zoospore_model"
+PLUGIN_DIR = (ARGS.plugin_dir or ABCA_DIR / "plugins" / PLUGIN_NAME).expanduser().resolve()
+REGISTRY_DIR = (ARGS.registry_dir or ABCA_DIR / "plugin_registry").expanduser().resolve()
 
 
 # ------------------------------------------------------------------
 # Python environments
 # ------------------------------------------------------------------
 
-AGENTS_PYTHON = (
+AGENTS_PYTHON = (ARGS.agents_python or (
     BASE_DIR
     / "python_venvs"
     / "agents"
     / "bin"
     / "python"
-).resolve()
+)).expanduser().resolve()
 
-ANALYSIS_PYTHON_PREFIX = (
+ANALYSIS_PYTHON_PREFIX = (ARGS.analysis_python_prefix or (
     BASE_DIR
     / "python_venvs"
     / "analysis"
-).resolve()
+)).expanduser().resolve()
 
 # CAUTION: do not call .resolve() here.
 # bin/python is a symlink; resolving it would replace the virtualenv
 # interpreter path with the underlying system Python path and break
 # virtualenv detection inside the Bubblewrap sandbox.
-ANALYSIS_PYTHON = (
+ANALYSIS_PYTHON = ARGS.analysis_python or (
     ANALYSIS_PYTHON_PREFIX
     / "bin"
     / "python"
 )
+ANALYSIS_PYTHON = ANALYSIS_PYTHON.expanduser().absolute()
