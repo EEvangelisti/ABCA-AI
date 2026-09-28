@@ -2,6 +2,21 @@
 
 set -euo pipefail
 
+if [[ $# -lt 1 || $# -gt 2 ]]; then
+    echo "Usage: $0 TEAM [PROFILE]" >&2
+    echo "Example: $0 discovery" >&2
+    echo "         $0 refinement model_b" >&2
+    exit 2
+fi
+
+TEAM="$1"
+PROFILE="${2:-}"
+
+CONFIG_ARGS=(--team "$TEAM")
+if [[ -n "$PROFILE" ]]; then
+    CONFIG_ARGS+=(--profile "$PROFILE")
+fi
+
 AGENT_PY="python_venvs/agents/bin/python"
 ANALYSIS_PY="python_venvs/analysis/bin/python"
 
@@ -12,10 +27,11 @@ echo "========================================================================"
 "$AGENT_PY" -m compileall -q source
 echo "source compileall OK"
 
-"$AGENT_PY" - <<'PY'
+"$AGENT_PY" "${CONFIG_ARGS[@]}" - <<'PY'
 import source.config as config
 
 print("config import OK")
+print("team           :", config.ARGS.team)
 print("active profile :", config.ACTIVE_PROFILE_NAME)
 print("workflow       :", config.WORKFLOW)
 print("prompt module  :", config.ACTIVE_PROMPTS)
@@ -34,7 +50,7 @@ echo "========================================================================"
 echo "2. Tool registry and JSON toolsets"
 echo "========================================================================"
 
-"$AGENT_PY" - <<'PY'
+"$AGENT_PY" "${CONFIG_ARGS[@]}" - <<'PY'
 import source.config as config
 from source.agents.team import resolve_tool
 
@@ -74,7 +90,7 @@ echo "========================================================================"
 echo "3. Team and orchestrator construction"
 echo "========================================================================"
 
-"$AGENT_PY" - <<'PY'
+"$AGENT_PY" "${CONFIG_ARGS[@]}" - <<'PY'
 import source.config as config
 from source.agents.team import create_team
 from source.agents.orchestrator import make_orchestrator
@@ -125,7 +141,7 @@ echo "========================================================================"
 echo "5. Bubblewrap / analysis sandbox smoke test"
 echo "========================================================================"
 
-ANALYSIS_WORKSPACE="$("$AGENT_PY" - <<'PY'
+ANALYSIS_WORKSPACE="$("$AGENT_PY" "${CONFIG_ARGS[@]}" - <<'PY'
 from source.config import ANALYSIS_DIR
 print(ANALYSIS_DIR)
 PY
@@ -164,14 +180,14 @@ print("write OK:", out.exists())
 print("SANDBOX TEST PASSED")
 PY
 
-"$AGENT_PY" -m source.test_analysis_tool
+"$AGENT_PY" -m source.test_analysis_tool "${CONFIG_ARGS[@]}"
 
 echo
 echo "========================================================================"
 echo "6. Shell tool functional test"
 echo "========================================================================"
 
-"$AGENT_PY" - <<'PY'
+"$AGENT_PY" "${CONFIG_ARGS[@]}" - <<'PY'
 from source.tools.shell_workspace import _run_workspace_command_impl
 
 result = _run_workspace_command_impl(
@@ -191,7 +207,7 @@ echo "========================================================================"
 echo "7. Europe PMC tool functional test"
 echo "========================================================================"
 
-"$AGENT_PY" - <<'PY'
+"$AGENT_PY" "${CONFIG_ARGS[@]}" - <<'PY'
 from source.tools.literature import _search, _record
 
 payload = _search("Phytophthora zoospore", 2)
