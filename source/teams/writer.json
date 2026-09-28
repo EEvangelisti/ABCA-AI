@@ -8,7 +8,6 @@
     "max_analysis_script_size": 100000,
     "max_analysis_read": 200000
   },
-
   "role_descriptions": {
     "analyst": "Scientific data analyst. Examines experimental and simulation data, performs quantitative analyses, identifies robust patterns, and reports evidence without overinterpretation.",
     "thinker": "Scientific conceptual strategist. Synthesizes evidence into the main ideas, arguments, interpretations, and narrative structure of the manuscript.",
@@ -16,9 +15,10 @@
     "writer": "Scientific writer. Converts validated analyses, concepts, and narrative decisions into coherent manuscript text while preserving scientific accuracy and appropriate nuance.",
     "pub_crawler": "Scientific literature specialist. Searches the scientific literature for relevant references, verifies their relevance, and connects published evidence to specific statements in the manuscript.",
     "illustrator": "Scientific figure designer. Uses the available data, analyses, and manuscript narrative to design and generate clear, publication-quality figures that faithfully represent the evidence.",
-    "reviewer": "Independent scientific reviewer. Audits analyses, reasoning, figures, references, and manuscript text for inconsistencies, unsupported claims, omissions, and other problems, and requests renewed analysis when necessary."
+    "reviewer": "Independent scientific reviewer. Audits analyses, reasoning, figures, references, and manuscript text for inconsistencies, unsupported claims, omissions, and other problems, and requests renewed analysis when necessary.",
+    "storyteller": "Post-freeze scientific narrative editor. Works exclusively on the scientifically frozen manuscript to strengthen biological context and funnel structure, explain abbreviations and specialist jargon, and connect supported findings to existing biology without altering the evidence, limitations, quantitative results, or claims of the present study.",
+    "storytelling_reviewer": "Post-freeze claim-preservation reviewer. Compares the Storyteller publication candidate with the scientifically frozen manuscript and determines only whether scientific claims attributable to the present study were introduced, strengthened, weakened, removed, or materially altered."
   },
-
   "toolsets": {
     "analyst_writer": [
       "list_input_files",
@@ -32,7 +32,6 @@
       "write_analysis_file",
       "run_analysis_script"
     ],
-
     "thinker_writer": [
       "list_input_files",
       "read_input_file",
@@ -44,7 +43,6 @@
       "read_analysis_file",
       "write_analysis_file"
     ],
-
     "catchy_sentencer_writer": [
       "list_input_files",
       "read_input_file",
@@ -52,7 +50,6 @@
       "read_analysis_file",
       "write_analysis_file"
     ],
-
     "writer_writer": [
       "list_input_files",
       "read_input_file",
@@ -61,7 +58,6 @@
       "read_analysis_file",
       "write_analysis_file"
     ],
-
     "pub_crawler_writer": [
       "search_literature",
       "extract_pdf_text",
@@ -72,7 +68,6 @@
       "read_analysis_file",
       "write_analysis_file"
     ],
-
     "illustrator_writer": [
       "list_input_files",
       "read_input_file",
@@ -85,7 +80,6 @@
       "write_analysis_file",
       "run_analysis_script"
     ],
-
     "reviewer_writer": [
       "list_input_files",
       "read_input_file",
@@ -97,13 +91,30 @@
       "read_analysis_file",
       "write_analysis_file",
       "run_analysis_script"
+    ],
+    "storyteller_writer": [
+      "search_literature",
+      "extract_pdf_text",
+      "get_literature_record",
+      "list_input_files",
+      "read_input_file",
+      "read_input_file_chunk",
+      "list_analysis_files",
+      "read_analysis_file",
+      "write_analysis_file"
+    ],
+    "storytelling_reviewer_writer": [
+      "list_input_files",
+      "read_input_file",
+      "read_input_file_chunk",
+      "list_analysis_files",
+      "read_analysis_file",
+      "write_analysis_file"
     ]
   },
-
   "profiles": {
     "writer": {
       "instructions": "writer.toml",
-
       "agents": [
         {
           "id": "analyst",
@@ -160,14 +171,28 @@
           "prompt": "REVIEWER_INSTRUCTIONS",
           "toolset": "reviewer_writer",
           "max_turns": 100
+        },
+        {
+          "id": "storyteller",
+          "role": "storyteller",
+          "model": "gpt-5.6-sol",
+          "prompt": "STORYTELLER_INSTRUCTIONS",
+          "toolset": "storyteller_writer",
+          "max_turns": 100
+        },
+        {
+          "id": "storytelling_reviewer",
+          "role": "storytelling_reviewer",
+          "model": "gpt-5.6-sol",
+          "prompt": "STORYTELLING_REVIEWER_INSTRUCTIONS",
+          "toolset": "storytelling_reviewer_writer",
+          "max_turns": 60
         }
       ],
-
       "orchestrator": {
         "model": "gpt-5.6-sol",
         "prompt": "ORCHESTRATOR_INSTRUCTIONS"
       },
-
       "initial_prompt": "INITIAL_EXPERIMENT_PROMPT"
     }
   }
