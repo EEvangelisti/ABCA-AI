@@ -42,8 +42,11 @@ from .input_data import (
 )
 
 from .shell_workspace import run_workspace_command
-from .literature import search_literature, get_literature_record
-
+from .literature import (
+  search_literature,
+  get_literature_record,
+  extract_pdf_text,
+)
 
 __all__ = [
     # ABCA read access
