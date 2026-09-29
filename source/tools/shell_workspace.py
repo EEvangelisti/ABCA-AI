@@ -57,6 +57,7 @@ def _run_workspace_command_impl(command: str, timeout_seconds: int = 300) -> str
                 "TMPDIR": "/tmp",
                 "PYTHONNOUSERSITE": "1",
                 "BASH_ENV": "",
+                "OPAM_SWITCH_PREFIX": str(OPAM_PREFIX),
             },
         )
     except subprocess.TimeoutExpired:
