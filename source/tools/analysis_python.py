@@ -10,6 +10,7 @@ from source.config import (
     ANALYSIS_TIMEOUT,
     ANALYSIS_PYTHON,
     ANALYSIS_PYTHON_PREFIX,
+    OPAM_PREFIX,
 )
 
 from source.tools.common import (
@@ -18,14 +19,13 @@ from source.tools.common import (
 )
 
 
-def python_runtime_bindings() -> list[str]:
+def sandbox_runtime_bindings() -> list[str]:
     """
     Construct read-only filesystem bindings required by the
-    dedicated scientific Python environment.
+    sandboxed scientific environment.
     """
     bindings = []
 
-    # System libraries and executables required by Python.
     for path in (
         "/usr",
         "/bin",
@@ -40,13 +40,21 @@ def python_runtime_bindings() -> list[str]:
                 ["--ro-bind", path, path]
             )
 
-    # Dedicated scientific Python environment.
     if ANALYSIS_PYTHON_PREFIX.exists():
         bindings.extend(
             [
                 "--ro-bind",
                 str(ANALYSIS_PYTHON_PREFIX),
                 str(ANALYSIS_PYTHON_PREFIX),
+            ]
+        )
+
+    if OPAM_PREFIX.exists():
+        bindings.extend(
+            [
+                "--ro-bind",
+                str(OPAM_PREFIX),
+                str(OPAM_PREFIX),
             ]
         )
 
@@ -114,7 +122,7 @@ def _run_analysis_script_impl(
     ]
 
     command.extend(
-        python_runtime_bindings()
+        sandbox_runtime_bindings()
     )
 
     command.extend(
