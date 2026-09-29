@@ -8,8 +8,13 @@ import subprocess
 
 from agents.decorators import tool
 
-from source.config import ANALYSIS_DIR, ANALYSIS_TIMEOUT, INPUT_DATA_DIR
-from source.tools.analysis_python import python_runtime_bindings
+from source.config import (
+    ANALYSIS_DIR,
+    ANALYSIS_TIMEOUT,
+    INPUT_DATA_DIR,
+    OPAM_PREFIX,
+)
+from source.tools.analysis_python import sandbox_runtime_bindings
 from source.tools.common import truncate
 
 
@@ -38,7 +43,7 @@ def _run_workspace_command_impl(command: str, timeout_seconds: int = 300) -> str
         "--new-session", "--proc", "/proc", "--dev", "/dev",
         "--tmpfs", "/tmp", "--ro-bind", str(INPUT_DATA_DIR), "/data",
         "--bind", str(ANALYSIS_DIR), "/work", "--chdir", "/work",
-        *python_runtime_bindings(),
+        *sandbox_runtime_bindings(),
         "/bin/bash", "--noprofile", "--norc", "-c", command,
     ]
 
@@ -47,7 +52,7 @@ def _run_workspace_command_impl(command: str, timeout_seconds: int = 300) -> str
             sandbox, cwd=ANALYSIS_DIR, capture_output=True, text=True,
             timeout=timeout_seconds,
             env={
-                "PATH": "/usr/bin:/bin",
+                "PATH": f"{OPAM_PREFIX / 'bin'}:/usr/bin:/bin",
                 "HOME": "/work",
                 "TMPDIR": "/tmp",
                 "PYTHONNOUSERSITE": "1",
