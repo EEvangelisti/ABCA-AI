@@ -442,9 +442,8 @@ ANALYSIS_PYTHON = ANALYSIS_PYTHON.expanduser().absolute()
 # OCaml / OPAM environment
 # ------------------------------------------------------------------
 
-OPAM_PREFIX = (
-    ARGS.opam_prefix
-    or Path.home() / ".opam" / "default"
-).expanduser().resolve()
-
-
+if ARGS.opam_prefix is not None:
+    OPAM_PREFIX = ARGS.opam_prefix.expanduser().resolve()
+else:
+    _default_opam_prefix = (Path.home() / ".opam" / "default").resolve()
+    OPAM_PREFIX = _default_opam_prefix if _default_opam_prefix.exists() else None
