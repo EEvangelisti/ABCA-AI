@@ -5,6 +5,7 @@ its Bash entry points. The original input package stays read-only at /data.
 """
 
 import subprocess
+from pathlib import Path
 
 from agents.decorators import tool
 
@@ -39,13 +40,35 @@ def _run_workspace_command_impl(command: str, timeout_seconds: int = 300) -> str
     ANALYSIS_DIR.mkdir(parents=True, exist_ok=True)
 
     sandbox = [
-        "bwrap", "--unshare-all", "--unshare-net", "--die-with-parent",
-        "--new-session", "--proc", "/proc", "--dev", "/dev",
-        "--tmpfs", "/tmp", "--ro-bind", str(INPUT_DATA_DIR), "/data",
-        "--bind", str(ANALYSIS_DIR), "/work", "--chdir", "/work",
+        "bwrap",
+        "--unshare-all",
+        "--unshare-net",
+        "--die-with-parent",
+        "--new-session",
+        "--proc", "/proc",
+        "--dev", "/dev",
+        "--dir", "/etc",
+        "--tmpfs", "/tmp",
+        "--ro-bind", str(INPUT_DATA_DIR), "/data",
+        "--bind", str(ANALYSIS_DIR), "/work",
+        "--chdir", "/work",
         *sandbox_runtime_bindings(),
-        "/bin/bash", "--noprofile", "--norc", "-c", command,
     ]
+
+    if OPAM_PREFIX is None and Path("/etc/ocamlfind.conf").exists():
+        sandbox.extend([
+            "--ro-bind",
+            "/etc/ocamlfind.conf",
+            "/etc/ocamlfind.conf",
+        ])
+
+    sandbox.extend([
+        "/bin/bash",
+        "--noprofile",
+        "--norc",
+        "-c",
+        command,
+    ])
 
     try:
         env = {
