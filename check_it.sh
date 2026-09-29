@@ -219,9 +219,17 @@ for executable in dune ocamlc; do
         printf 'MISSING: %s is not on the isolated shell PATH\n' "$executable" >&2
         exit 20
     fi
+    printf '%s: %s\n' "$executable" "$(command -v "$executable")"
 done
+
+printf 'dune version: '
 dune --version
+printf 'ocamlc version: '
 ocamlc -version
+printf 'ocamlfind: '
+command -v ocamlfind
+printf 'cairo2 package: '
+ocamlfind query cairo2
 
 if [[ -f /data/ABCA/dune-project ]]; then
     source_dir=/data/ABCA
