@@ -82,6 +82,7 @@ def sanity_checks():
         "ABCA repository": config.ABCA_DIR,
         "input data": config.INPUT_DATA_DIR,
         "analysis Python": config.ANALYSIS_PYTHON,
+         "OPAM environment": config.OPAM_PREFIX,
     }
 
     for name, path in required_paths.items():
@@ -89,6 +90,13 @@ def sanity_checks():
             raise RuntimeError(
                 f"Missing {name}: {path}"
             )
+
+    dune = config.OPAM_PREFIX / "bin" / "dune"
+
+    if not dune.exists():
+        raise RuntimeError(
+            f"Dune not found in configured OPAM environment: {dune}"
+        )
 
     if shutil.which("bwrap") is None:
         raise RuntimeError(
@@ -138,6 +146,7 @@ def main():
     print(f"Plugin     : {config.PLUGIN_DIR}")
     print(f"Registry   : {config.REGISTRY_DIR}")
     print(f"Python lab : {config.ANALYSIS_PYTHON}")
+    print(f"OCaml/OPAM : {config.OPAM_PREFIX}")
     print(f"Max turns  : {config.MAX_TURNS}")
 
     # ------------------------------------------------------------------
