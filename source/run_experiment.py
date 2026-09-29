@@ -109,6 +109,67 @@ def sanity_checks():
         )
 
 
+class LocalTraceRecorder(TracingProcessor):
+    def __init__(self, output_dir: Path):
+        self.output_dir = output_dir
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+
+    def _append(self, trace_id, record):
+        output_file = self.output_dir / f"{trace_id}.jsonl"
+
+        with output_file.open("a", encoding="utf-8") as f:
+            f.write(
+                json.dumps(
+                    record,
+                    ensure_ascii=False,
+                    default=str,
+                )
+                + "\n"
+            )
+            f.flush()
+
+    def on_trace_start(self, trace):
+        self._append(
+            trace.trace_id,
+            {
+                "type": "trace_start",
+                "trace": trace.export(),
+            },
+        )
+
+    def on_trace_end(self, trace):
+        self._append(
+            trace.trace_id,
+            {
+                "type": "trace_end",
+                "trace": trace.export(),
+            },
+        )
+
+        print(
+            f"[trace] Completed local trace: "
+            f"{self.output_dir / f'{trace.trace_id}.jsonl'}"
+        )
+
+    def on_span_start(self, span):
+        pass
+
+    def on_span_end(self, span):
+        self._append(
+            span.trace_id,
+            {
+                "type": "span",
+                "span": span.export(),
+            },
+        )
+
+    def shutdown(self):
+        pass
+
+    def force_flush(self):
+        pass
+
+
 def main():
 
     sanity_checks()
