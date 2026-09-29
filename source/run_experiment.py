@@ -82,7 +82,6 @@ def sanity_checks():
         "ABCA repository": config.ABCA_DIR,
         "input data": config.INPUT_DATA_DIR,
         "analysis Python": config.ANALYSIS_PYTHON,
-         "OPAM environment": config.OPAM_PREFIX,
     }
 
     for name, path in required_paths.items():
@@ -91,7 +90,13 @@ def sanity_checks():
                 f"Missing {name}: {path}"
             )
 
-    dune = config.OPAM_PREFIX / "bin" / "dune"
+    if config.OPAM_PREFIX is not None:
+        dune = config.OPAM_PREFIX / "bin" / "dune"
+    else:
+        dune_path = shutil.which("dune")
+        if dune_path is None:
+            raise RuntimeError("Missing dune executable")
+        dune = Path(dune_path)
 
     if not dune.exists():
         raise RuntimeError(
@@ -146,7 +151,10 @@ def main():
     print(f"Plugin     : {config.PLUGIN_DIR}")
     print(f"Registry   : {config.REGISTRY_DIR}")
     print(f"Python lab : {config.ANALYSIS_PYTHON}")
-    print(f"OCaml/OPAM : {config.OPAM_PREFIX}")
+    if config.OPAM_PREFIX is not None:
+        print(f"OCaml/OPAM : {config.OPAM_PREFIX}")
+    else:
+        print("OCaml/OPAM : system OCaml/Dune")
     print(f"Max turns  : {config.MAX_TURNS}")
 
     # ------------------------------------------------------------------

@@ -48,17 +48,28 @@ def _run_workspace_command_impl(command: str, timeout_seconds: int = 300) -> str
     ]
 
     try:
+        env = {
+            "PATH": (
+                f"{OPAM_PREFIX / 'bin'}:/usr/bin:/bin"
+                if OPAM_PREFIX is not None
+                else "/usr/bin:/bin"
+            ),
+            "HOME": "/work",
+            "TMPDIR": "/tmp",
+            "PYTHONNOUSERSITE": "1",
+            "BASH_ENV": "",
+        }
+
+        if OPAM_PREFIX is not None:
+            env["OPAM_SWITCH_PREFIX"] = str(OPAM_PREFIX)
+
         result = subprocess.run(
-            sandbox, cwd=ANALYSIS_DIR, capture_output=True, text=True,
+            sandbox,
+            cwd=ANALYSIS_DIR,
+            capture_output=True,
+            text=True,
             timeout=timeout_seconds,
-            env={
-                "PATH": f"{OPAM_PREFIX / 'bin'}:/usr/bin:/bin",
-                "HOME": "/work",
-                "TMPDIR": "/tmp",
-                "PYTHONNOUSERSITE": "1",
-                "BASH_ENV": "",
-                "OPAM_SWITCH_PREFIX": str(OPAM_PREFIX),
-            },
+            env=env,
         )
     except subprocess.TimeoutExpired:
         return f"Command timed out after {timeout_seconds} seconds."

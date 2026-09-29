@@ -49,7 +49,7 @@ def sandbox_runtime_bindings() -> list[str]:
             ]
         )
 
-    if OPAM_PREFIX.exists():
+    if OPAM_PREFIX is not None and OPAM_PREFIX.exists():
         bindings.extend(
             [
                 "--ro-bind",
