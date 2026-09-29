@@ -26,7 +26,8 @@ def _arguments():
                  "max_file_size", "max_analysis_script_size", "max_analysis_read"):
         parser.add_argument("--" + name.replace("_", "-"), type=int)
     for name in ("abca_dir", "input_data_dir", "analysis_dir", "plugin_dir",
-                 "registry_dir", "agents_python", "analysis_python_prefix", "analysis_python"):
+                 "registry_dir", "agents_python", "analysis_python_prefix", 
+                 "analysis_python", "opam_prefix"):
         parser.add_argument("--" + name.replace("_", "-"), type=Path)
     parser.add_argument("--plugin-name")
     return parser.parse_args()
@@ -436,3 +437,14 @@ ANALYSIS_PYTHON = ARGS.analysis_python or (
     / "python"
 )
 ANALYSIS_PYTHON = ANALYSIS_PYTHON.expanduser().absolute()
+
+# ------------------------------------------------------------------
+# OCaml / OPAM environment
+# ------------------------------------------------------------------
+
+OPAM_PREFIX = (
+    ARGS.opam_prefix
+    or Path.home() / ".opam" / "default"
+).expanduser().resolve()
+
+
