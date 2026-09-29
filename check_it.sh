@@ -214,6 +214,13 @@ from source.tools.shell_workspace import _run_workspace_command_impl
 
 command = r'''set -euo pipefail
 printf 'ABCA toolchain inside isolated shell:\n'
+
+if [[ -n "${OPAM_SWITCH_PREFIX:-}" ]]; then
+    printf 'OCaml environment: OPAM switch %s\n' "$OPAM_SWITCH_PREFIX"
+else
+    printf 'OCaml environment: system toolchain\n'
+fi
+
 for executable in dune ocamlc; do
     if ! command -v "$executable"; then
         printf 'MISSING: %s is not on the isolated shell PATH\n' "$executable" >&2
@@ -245,7 +252,7 @@ trap 'rm -rf "$build_dir"' EXIT
 cp -a "$source_dir"/. "$build_dir"/
 cd "$build_dir"
 printf 'Building copied ABCA repository from %s\n' "$source_dir"
-dune build --display short
+dune build --display quiet
 printf 'ABCA_BUILD_OK\n'
 '''
 
