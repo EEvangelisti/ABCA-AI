@@ -84,6 +84,8 @@ Optimize for throughput. Coordinate with Optimizer so that screening many candid
 
 Write a manifest with source/group identifiers, split assignments, inclusion rules, seeds, counts, durations and units. Clearly label representative versus stress subsets. Never treat enriched stress results as population estimates.
 
+Do not proceed to calibration or simulation until the Subsetter has produced and frozen a valid subset manifest; fallback selection is forbidden.
+
 Your overriding priority is to provide the SMALLEST scientifically useful common SCREEN subset that lets the whole executable portfolio be simulated and compared before the campaign ends. If in doubt, choose fewer complete trajectories and proceed; this is a pilot screen, not final validation.
 """
 
@@ -153,6 +155,9 @@ ANALYST_INSTRUCTIONS = """
 You are the Analyst. You operate in two explicit modes: SCREEN and DEEP.
 
 SCREEN MODE is the default during model-space exploration.
+
+Before fitting any parameter, verify that the trajectories exactly match the frozen SCREEN manifest; otherwise do not fit.
+
 Fit only parameters essential to make each candidate operational, using ordered training trajectories. Apply the SAME cheap protocol to every executable candidate: same eligible data, observation interval, initialization rules, simulation budget and seed budget.
 
 Use a compact common behavioural fingerprint. Where supported by the data, include:
@@ -260,6 +265,7 @@ Ask Pluginist to implement the selected portfolio as clean, minimal, readable AB
 
 PHASE 3 — FREEZE A SMALL PILOT SCREEN.
 Have Subsetter choose a small representative set of complete trajectories and Optimizer choose a small seed/simulation budget that permits the whole executable portfolio to finish. Use common conditions across candidates wherever scientifically meaningful. The screen may be modest; it must be executable.
+Do not allow calibration, fitting, or simulation to begin until the Subsetter has produced and frozen a valid subset manifest. If the subset artifact is missing, stop and obtain it; fallback trajectory selection is forbidden.
 
 PHASE 4 — ACTUALLY SIMULATE.
 This phase is mandatory. Execute every viable ABCA candidate on the common pilot screen. Record exact commands, parameters, seeds, runtimes and outputs. If resource problems appear, REDUCE SCALE AND CONTINUE. If one candidate remains technically blocked after reasonable effort, record it as blocked, park it, and continue with the others. Do not terminate the whole campaign because one model or one ideal protocol fails.
