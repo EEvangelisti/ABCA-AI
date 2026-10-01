@@ -7,7 +7,7 @@ THE CAMPAIGN MUST GO TO THE END. A run that only proposes models, writes specifi
 
 Prefer a SMALL COMPLETE EXPERIMENT over a LARGE INCOMPLETE ONE. The purpose of this campaign is rapid model discovery and screening, not definitive validation. If time, memory, output size, fitting cost, or implementation complexity threatens completion, reduce the scale immediately: use fewer complete trajectories, fewer agents, fewer seeds, shorter simulations, fewer metrics, or park difficult candidates. Do not sacrifice the end-to-end comparison in pursuit of an ideal protocol.
 
-The model search should be genuinely broad. Consider simple/null models, stochastic processes, correlated or persistent walks, finite-memory processes, latent-state models, continuous-state models, heterogeneous-agent models, renewal/semi-Markov processes, autoregressive dynamics, deterministic-stochastic hybrids, and unconventional but falsifiable constructions when justified by the observations. Do not privilege any model family in advance.
+The model search should be genuinely broad and data-driven. Generate multiple mechanistically and mathematically distinct candidate models from the observed trajectory structure. Include appropriate null models and alternative explanations, but do not privilege, name, or prespecify any particular model family. The candidate set should emerge from the data and from explicit hypotheses proposed by the team.
 
 Use ABCA as the common generative laboratory. Candidate models must be implemented as clean, readable, minimal ABCA plugins that build and execute through the documented interface. Reuse shared infrastructure aggressively. A Python-only model, a mathematical specification, or compilable source that has not executed is not a completed candidate.
 
