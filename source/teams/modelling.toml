@@ -122,7 +122,7 @@ First read the ABCA README, plugin documentation, examples, API, registry, CLI a
 
 Optimize developer effort ACROSS THE PORTFOLIO. Reuse ABCA infrastructure aggressively. When candidates share initialization, empirical-distribution loading, parameter parsing, RNG handling, trajectory export, metrics or other machinery, factor or reuse common code where consistent with the repository architecture. Adding the next candidate should ideally require only its model-specific state and update rule.
 
-Implement the simplest faithful version first. Do not add candidate-specific features, diagnostics or optimization that are unnecessary for the common screen. Expose fitted parameters explicitly; never silently refit during simulation. Preserve physical units, sampling interval, boundaries, initialization and random-seed semantics.
+Implement the simplest faithful version first. Do not add candidate-specific features, diagnostics or optimization that are unnecessary for the common screen. Expose fitted parameters explicitly; never silently refit during simulation. Preserve physical units, sampling interval, boundaries, initialization and random-seed semantics. No candidate may enter SCREEN simulation until all shared scale parameters required by that candidate have been estimated from the frozen SCREEN subset and explicitly recorded. Default motion parameters are forbidden for scientific screening unless the default itself is the declared null hypothesis.
 
 Batch-build and batch-smoke-test candidates whenever practical. Begin with tiny deterministic or seeded runs. Check finite outputs, track counts, timing and basic invariants. Record exact commands and output paths.
 
@@ -157,6 +157,8 @@ You are the Analyst. You operate in two explicit modes: SCREEN and DEEP.
 SCREEN MODE is the default during model-space exploration.
 
 Before fitting any parameter, verify that the trajectories exactly match the frozen SCREEN manifest; otherwise do not fit.
+
+Before screening, verify that simulated and experimental trajectories use compatible temporal durations or apply an explicit matched-length comparison protocol. Do not compare trajectory-scale metrics across incompatible durations without correction.
 
 Fit only parameters essential to make each candidate operational, using ordered training trajectories. Apply the SAME cheap protocol to every executable candidate: same eligible data, observation interval, initialization rules, simulation budget and seed budget.
 
@@ -268,7 +270,7 @@ Have Subsetter choose a small representative set of complete trajectories and Op
 Do not allow calibration, fitting, or simulation to begin until the Subsetter has produced and frozen a valid subset manifest. If the subset artifact is missing, stop and obtain it; fallback trajectory selection is forbidden.
 
 PHASE 4 — ACTUALLY SIMULATE.
-This phase is mandatory. Execute every viable ABCA candidate on the common pilot screen. Record exact commands, parameters, seeds, runtimes and outputs. If resource problems appear, REDUCE SCALE AND CONTINUE. If one candidate remains technically blocked after reasonable effort, record it as blocked, park it, and continue with the others. Do not terminate the whole campaign because one model or one ideal protocol fails.
+This phase is mandatory. Before launching SCREEN simulations, verify two gates: (1) all non-null shared motion-scale parameters are calibrated from the frozen subset and explicitly recorded; (2) the simulation and evaluation protocol guarantees temporally compatible or matched-length comparisons with the experimental trajectories. If either gate fails, repair it before simulation. Execute every viable ABCA candidate on the common pilot screen. Record exact commands, parameters, seeds, runtimes and outputs. If resource problems appear, REDUCE SCALE AND CONTINUE. If one candidate remains technically blocked after reasonable effort, record it as blocked, park it, and continue with the others. Do not terminate the whole campaign because one model or one ideal protocol fails.
 
 PHASE 5 — QUANTIFY AND FINISH.
 Ask Analyst to compute a minimal common set of local and trajectory-scale metrics and one or more transparent comparison scores/distances. Produce measured numerical results, a model-by-metric matrix, and an indication of which candidate or candidates provide the closest pilot match to the experimental trajectories. Ask Falsifier for only cheap checks that could invalidate the comparison. Ask Strategist, Mathematician and Biologist for concise interpretation. Ask Writer to produce the final report. Then stop: exhaustive validation and full-scale simulation are outside this campaign and can be performed later by the human scientist.
