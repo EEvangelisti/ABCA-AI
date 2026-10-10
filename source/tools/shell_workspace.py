@@ -15,7 +15,7 @@ from source.config import (
     INPUT_DATA_DIR,
     OPAM_PREFIX,
 )
-from source.tools.analysis_python import sandbox_runtime_bindings
+from source.tools.analysis_python import sandbox_runtime_bindings, sandbox_workspace_bindings
 from source.tools.common import truncate
 
 
@@ -23,10 +23,11 @@ MAX_COMMAND_CHARS = 8_000
 
 
 def _run_workspace_command_impl(command: str, timeout_seconds: int = 300) -> str:
-    """Run a Bash command with /data read-only and /work read-write.
+    """Run Bash with /data read-only; /work and campaign workspaces writable.
 
     The command starts in /work, has no network, and cannot see the host
-    repository outside the explicit mounts. For the supplied toolsuite, first
+    repository outside the explicit mounts. /refinement and /evaluation map to
+    campaign workspaces when present. For the supplied toolsuite, first
     copy /data/analysis_toolsuite to /work/analysis_toolsuite, then run its
     `run` or `batch_run` entry point with configs and outputs under /work.
     This tool is intended for Scripter and LinuxOracle, not web searches.
@@ -52,6 +53,7 @@ def _run_workspace_command_impl(command: str, timeout_seconds: int = 300) -> str
         "--ro-bind", str(INPUT_DATA_DIR), "/data",
         "--bind", str(ANALYSIS_DIR), "/work",
         "--chdir", "/work",
+        *sandbox_workspace_bindings(),
         *sandbox_runtime_bindings(),
     ]
 
@@ -107,10 +109,11 @@ def _run_workspace_command_impl(command: str, timeout_seconds: int = 300) -> str
 
 @tool
 def run_workspace_command(command: str, timeout_seconds: int = 300) -> str:
-    """Run a Bash command with /data read-only and /work read-write.
+    """Run Bash with /data read-only; /work and campaign workspaces writable.
 
     The command starts in /work, has no network, and cannot see the host
-    repository outside the explicit mounts. For the supplied toolsuite, first
+    repository outside the explicit mounts. /refinement and /evaluation map to
+    campaign workspaces when present. For the supplied toolsuite, first
     copy /data/analysis_toolsuite to /work/analysis_toolsuite, then run its
     `run` or `batch_run` entry point with configs and outputs under /work.
     """

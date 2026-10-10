@@ -61,6 +61,25 @@ def sandbox_runtime_bindings() -> list[str]:
     return bindings
 
 
+def sandbox_workspace_bindings() -> list[str]:
+    """Expose the two campaign workspaces under stable sandbox paths.
+
+    Paths are resolved alongside the configured input_data directory, so this
+    works with the existing --input-data-dir CLI option without changing config.py.
+    Note: both workspaces are writable to any agent granted a command tool.
+    """
+    runs_dir = INPUT_DATA_DIR.parent
+    bindings = []
+    for name, mountpoint in (
+        ("refinement_workspace", "/refinement"),
+        ("evaluation_workspace", "/evaluation"),
+    ):
+        host_path = runs_dir / name
+        if host_path.is_dir():
+            bindings.extend(["--dir", mountpoint, "--bind", str(host_path), mountpoint])
+    return bindings
+
+
 def _run_analysis_script_impl(
     relative_path: str,
     arguments: str = "",
@@ -121,9 +140,8 @@ def _run_analysis_script_impl(
         "/work",
     ]
 
-    command.extend(
-        sandbox_runtime_bindings()
-    )
+    command.extend(sandbox_workspace_bindings())
+    command.extend(sandbox_runtime_bindings())
 
     command.extend(
         [
@@ -175,6 +193,8 @@ def run_analysis_script(
     Inside the sandbox:
       - /data is the complete experimental input dataset (read-only).
       - /work is analysis_workspace (read/write).
+      - /refinement and /evaluation are campaign workspaces (read/write)
+        when those directories exist next to input_data.
       - large input files should be parsed or streamed directly from /data
         rather than transferred through read_input_file().
 
