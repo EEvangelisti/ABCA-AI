@@ -1,0 +1,152 @@
+{
+  "runtime": {
+    "max_turns": 600,
+    "command_timeout": 600,
+    "analysis_timeout": 600,
+    "max_output": 200000,
+    "max_file_size": 200000,
+    "max_analysis_script_size": 100000,
+    "max_analysis_read": 200000
+  },
+  "role_descriptions": {
+    "mathematician": "Refinement-team mathematical modeller. Start exclusively from the 13 registered CAN models, interpret historical and previous-cycle metric diagnostics, and specify parsimonious, falsifiable rule changes.",
+    "pluginist": "Refinement-team OCaml/ABCA developer. Version and implement a refined registered zoospore model, build and smoke-test it without modifying evaluation infrastructure.",
+    "fitter": "Refinement-team parameter estimation specialist. Use only the five XMLs in refinement_workspace/fitting, calibrate and freeze ABCA-compatible model parameters.",
+    "runner": "Independent evaluation operator. Receive five challenger simulation XMLs, allocate five untouched validation XMLs, and run evaluation_workspace/run_evaluation.sh; ABCA is NOT used on the evaluation side.",
+    "analyst": "Independent evaluator. Read the generated report/CSVs, assess four normalized Wasserstein distances plus normalized MSD and direction-autocorrelation RMSE, explain trade-offs and uncertainty.",
+    "orchestrator": "Coordinate up to 20 documented fitting/simulation/evaluation cycles between read-only shared context and separated writable refinement/evaluation workspaces, preserve provenance and incumbent decisions."
+  },
+  "toolsets": {
+    "mathematician": [
+      "list_input_files",
+      "read_input_file",
+      "inspect_input_file",
+      "read_input_file_chunk",
+      "inspect_csv",
+      "csv_column_summary",
+      "list_analysis_files",
+      "read_analysis_file",
+      "write_analysis_file",
+      "run_analysis_script"
+    ],
+    "pluginist": [
+      "list_input_files",
+      "read_input_file",
+      "inspect_input_file",
+      "read_input_file_chunk",
+      "list_analysis_files",
+      "read_analysis_file",
+      "write_analysis_file",
+      "run_analysis_script",
+      "list_abca_files",
+      "read_abca_file",
+      "write_discovered_plugin_file",
+      "write_plugin_registry_file",
+      "copy_abca_output_to_analysis",
+      "run_workspace_command"
+    ],
+    "fitter": [
+      "list_input_files",
+      "read_input_file",
+      "inspect_input_file",
+      "read_input_file_chunk",
+      "inspect_csv",
+      "csv_column_summary",
+      "list_analysis_files",
+      "read_analysis_file",
+      "write_analysis_file",
+      "run_analysis_script",
+      "list_abca_files",
+      "read_abca_file",
+      "run_workspace_command"
+    ],
+    "runner": [
+      "list_input_files",
+      "read_input_file",
+      "inspect_input_file",
+      "read_input_file_chunk",
+      "list_analysis_files",
+      "read_analysis_file",
+      "write_analysis_file",
+      "run_analysis_script",
+      "run_workspace_command"
+    ],
+    "analyst": [
+      "list_input_files",
+      "read_input_file",
+      "inspect_input_file",
+      "read_input_file_chunk",
+      "inspect_csv",
+      "csv_column_summary",
+      "list_analysis_files",
+      "read_analysis_file",
+      "write_analysis_file",
+      "run_analysis_script"
+    ],
+    "orchestrator": [
+      "list_input_files",
+      "read_input_file",
+      "inspect_input_file",
+      "read_input_file_chunk",
+      "inspect_csv",
+      "csv_column_summary",
+      "list_analysis_files",
+      "read_analysis_file",
+      "write_analysis_file",
+      "run_analysis_script",
+      "run_workspace_command"
+    ]
+  },
+  "profiles": {
+    "refinement": {
+      "instructions": "refinement.toml",
+      "agents": [
+        {
+          "id": "mathematician",
+          "role": "mathematician",
+          "model": "gpt-5.6-sol",
+          "prompt": "MATHEMATICIAN_INSTRUCTIONS",
+          "toolset": "mathematician",
+          "max_turns": 70
+        },
+        {
+          "id": "pluginist",
+          "role": "pluginist",
+          "model": "gpt-5.6-sol",
+          "prompt": "PLUGINIST_INSTRUCTIONS",
+          "toolset": "pluginist",
+          "max_turns": 90
+        },
+        {
+          "id": "fitter",
+          "role": "fitter",
+          "model": "gpt-5.6-sol",
+          "prompt": "FITTER_INSTRUCTIONS",
+          "toolset": "fitter",
+          "max_turns": 90
+        },
+        {
+          "id": "runner",
+          "role": "runner",
+          "model": "gpt-5.6-sol",
+          "prompt": "RUNNER_INSTRUCTIONS",
+          "toolset": "runner",
+          "max_turns": 90
+        },
+        {
+          "id": "analyst",
+          "role": "analyst",
+          "model": "gpt-5.6-sol",
+          "prompt": "ANALYST_INSTRUCTIONS",
+          "toolset": "analyst",
+          "max_turns": 90
+        }
+      ],
+      "orchestrator": {
+        "model": "gpt-5.6-sol",
+        "prompt": "ORCHESTRATOR_INSTRUCTIONS"
+      },
+      "initial_prompt": "INITIAL_EXPERIMENT_PROMPT"
+    }
+  }
+}
