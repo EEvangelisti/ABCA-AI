@@ -22,6 +22,32 @@ MANDATORY SPATIAL VISUALIZATION AND DIAGNOSTICS FOR EVERY SUCCESSFULLY FITTED CA
 6. Prefer comparison to EXPERIMENTAL images under matched initialization, field of view, observation times, and coordinate calibration. Current experimental evidence is the human scientist's observation that there is no donut. Until a matched non-held-out reference is supplied, annularity improvement is measured RELATIVE TO THE PARENT and labelled a plausibility diagnostic, not a quantitative experimental fit. Do NOT ingest withheld new images as validation feedback.
 7. Investigate whether the ring is intrinsic to motility or an initialization/synchronization, snapshot-time, domain, plotting, or boundary artifact. Do not force a uniform point cloud or allow trivial improvements caused by slowing or freezing the population.
 
+
+PRIMARY SPATIAL VALIDATION WINDOW — GENERATIONS 15 AND 30:
+
+The PRIMARY objective of this campaign is to eliminate or substantially reduce the biologically implausible annular ("donut") distribution observed in the frozen C3 parent model at generations 15 and 30.
+
+These two generations are the MANDATORY PRIMARY SPATIAL EVALUATION TIMEPOINTS. They correspond to approximately 1.05 s and 2.10 s of simulated time, respectively, using dt_sec = 0.0700506.
+
+For EVERY candidate model:
+
+1. Generate population snapshots at generations 0, 8, 15, 30, 60 and 100, using identical initial conditions, spatial scales, visualization settings and matched random seeds for the frozen parent and candidate.
+
+2. PRIORITIZE generations 15 and 30 for quantitative evaluation. At BOTH timepoints, compare radial density profiles, annularity index A, excess annularity E, central occupancy, r50, r90 and spatial coverage against the frozen C3 parent.
+
+3. A candidate must demonstrate a reproducible reduction of the annular artifact at BOTH generations 15 and 30. An improvement at only one timepoint is insufficient for an unconditional SPATIAL_PASS.
+
+4. Reject apparent improvements caused merely by reduced population spreading, altered initialization, coordinate scaling, boundary effects, or visualization settings. Preserve realistic population expansion and acceptable trajectory-level performance.
+
+5. Use generations 0 and 8 to examine initialization and early spatial spreading. Use generations 60 and 100 to characterize later redistribution and boundary effects. These SECONDARY timepoints provide mechanistic context but must NOT compensate for failure at generations 15 or 30.
+
+6. Spatial model selection must be based primarily on reproducible improvement at generations 15 and 30 across five independent simulation seeds. Preserve and report individual-seed results, not only population averages.
+
+A better six-metric trajectory score MUST NOT override a persistent annular artifact at either primary timepoint.
+
+The team must determine which local movement rules are responsible for the spatial discrepancy and discover a parsimonious correction WITHOUT being given a prescribed mechanism.
+
+
 EVALUATION: Preserve exactly the implemented four Wasserstein-1 metrics (net displacement, straightness, speed, absolute turning angle), two curve RMSEs (MSD, directional autocorrelation), and the mean of their six reference-normalized discrepancies (lower is better). Transfer ONLY five candidate trajectory XMLs, not source/TOML/training data, to evaluation_workspace/ALT_MODEL; move five previously unused validation XMLs; execute unchanged ./run_evaluation.sh MODEL ALT_MODEL. EMP is scaled x10; CAN default scale x1. For SAME-CYCLE EMP comparison report G=1-candidate_score/EMP_score. Compare historical cycles with caution: validation subsets differ, so those comparisons are UNPAIRED and confounded by batch effects.
 
 SELECTION PRIORITY: A good aggregate trajectory score NEVER overrules a persistent donut. Start BEST_AI_MODEL as the FROZEN C3 PARENT, not the first new candidate. A new candidate is eligible for promotion only with valid quantitative spatial evidence of reducing excess annularity over C3 on paired-seed refinement simulations, while retaining spatial spread and reasonably preserving the previous trajectory performance. Use the predeclared selection gates in ORCHESTRATOR_INSTRUCTIONS, explicitly flag uncertainty and keep a Pareto record. An improvement in aggregate score alone is NOT grounds for acceptance. EMP victory is tracked separately; not a prerequisite. No new candidate can be declared biologically validated solely by this campaign.
@@ -86,6 +112,17 @@ PHASE 0 — MANDATORY INVENTORY AND BASELINE BEFORE CONSUMING DATA:
 5. From parent baseline quantify annularity A = rho_shell/max(rho_core,epsilon) with rho_core=counts(r<=0.35*r90)/(pi*(0.35*r90)^2), rho_shell=counts(0.60*r90<r<=0.90*r90)/(pi*((0.90*r90)^2-(0.60*r90)^2)), r90=90th percentile of radii around fixed recorded initialization center, E=max(A-1,0). Use epsilon=1e-9 in density units; record all formulae and small-denominator failures. Report r50/r90 and absolute coverage in micrometre units and a stable predeclared grid. Test sensibility against equal-area radial histogram; never use raw radial counts as a density profile. Compare identical initialization, seeds, domain, axis limits, marker size and time points. Investigate plotting/initialization/boundary artifacts BEFORE assuming new motility physics is necessary.
 
 AVAILABLE TOOLS AND LIMITATION: JSON toolsets permit text inspection, Python analysis and workspace commands, NOT an explicit native image-reading tool. Your task is to CREATE REAL PNG files, verify their existence/parseability, compute numeric spatial diagnostics automatically, and offer contact sheets for the human scientist to inspect. Do NOT claim the analyst visually inspected a PNG without proof the runtime actually supports it. If you can demonstrate an image-reader, record exact tool/method; otherwise mark machine vision UNAVAILABLE and require human visual verification before a final biological plausibility claim.
+
+NON-NEGOTIABLE SPATIAL PRIORITY:
+
+Generations 15 and 30 are the two primary decision points for biological plausibility. The Orchestrator MUST require quantitative evidence of reduced annularity at BOTH generations before promoting any candidate.
+
+The spatial acceptance gate takes precedence over improvements in the conventional six-metric trajectory score.
+
+Generations 0, 8, 60 and 100 are diagnostic controls and cannot substitute for success at generations 15 and 30.
+
+Never declare the donut corrected based on a single image, a single simulation seed, or improved performance at only one primary generation.
+
 
 PREDECLARE SELECTION RULES in campaign_protocol.md BEFORE cycle 1 (pragmatic starting gates below can be adjusted only with a documented preregistration BEFORE looking at candidate results):
 - Baseline BEST_AI_MODEL = frozen C3; it is allowed to remain winner if no successful refinement occurs. Never auto-accept the first new candidate.
