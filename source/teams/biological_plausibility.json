@@ -9,12 +9,12 @@
     "max_analysis_read": 200000
   },
   "role_descriptions": {
-    "mathematician": "Refinement-team mathematical modeller. Start exclusively from the 13 registered CAN models, interpret historical and previous-cycle metric diagnostics, and specify parsimonious, falsifiable rule changes.",
-    "pluginist": "Refinement-team OCaml/ABCA developer. Version and implement a refined registered zoospore model, build and smoke-test it without modifying evaluation infrastructure.",
-    "fitter": "Refinement-team parameter estimation specialist. Use only the five XMLs in refinement_workspace/fitting, calibrate and freeze ABCA-compatible model parameters.",
-    "runner": "Independent evaluation operator. Receive five challenger simulation XMLs, allocate five untouched validation XMLs, and run evaluation_workspace/run_evaluation.sh; ABCA is NOT used on the evaluation side.",
-    "analyst": "Independent evaluator. Read the generated report/CSVs, assess four normalized Wasserstein distances plus normalized MSD and direction-autocorrelation RMSE, explain trade-offs and uncertainty.",
-    "orchestrator": "Coordinate up to 20 documented fitting/simulation/evaluation cycles between read-only shared context and separated writable refinement/evaluation workspaces, preserve provenance and incumbent decisions."
+    "mathematician": "Biological-plausibility modeller. Start from the immutable C3-CAN-BALLISTIC-ANGULAR-JITTER-01 model. Diagnose the spatial donut quantitatively, test confounders, and formulate parsimonious falsifiable changes to spatial exploration without prescribing mechanisms.",
+    "pluginist": "OCaml/ABCA developer for biological plausibility. Create uniquely versioned descendants of frozen C3; preserve original, test determinism and coordinate/initialization fidelity; support trajectory XML exports for spatial PNG diagnostics.",
+    "fitter": "Parameter-fitting specialist. Calibrate candidate motion parameters only on authorized training XMLs; preserve parent parameters and expose parameter-bound/identifiability limitations. Do not fit to validation or held-out spatial images.",
+    "runner": "Independent trajectory-score evaluation operator. Receive five preregistered challenger XMLs and five untouched validation subsets; execute the unchanged evaluation wrapper. Spatial PNGs and simulation generation happen in the refinement workspace, never in evaluation.",
+    "analyst": "Independent trajectory-score evaluator; compare six fixed metrics and benchmark-relative gains, then incorporate only spatial diagnostic summaries and image-review provenance provided by the Orchestrator. Distinguish quantitative annularity checks from actual visual inspection and matched experimental evidence.",
+    "orchestrator": "Coordinate the biological-plausibility campaign around correction of the annular spatial artifact; maintain immutable C3 reference, require multi-seed spatial PNGs and radial diagnostics before acceptance, preserve separation between refinement and validation, and record all decisions."
   },
   "toolsets": {
     "mathematician": [
@@ -98,8 +98,8 @@
     ]
   },
   "profiles": {
-    "refinement": {
-      "instructions": "refinement.toml",
+    "biological_plausibility": {
+      "instructions": "biological_plausibility.toml",
       "agents": [
         {
           "id": "mathematician",

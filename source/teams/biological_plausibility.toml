@@ -1,190 +1,108 @@
 INITIAL_EXPERIMENT_PROMPT = """
-Conduct an actual, documented campaign of at most 20 successive refinement/evaluation cycles, not merely a planning exercise. Keep TWO teams: REFINEMENT (mathematician, pluginist, fitter) and EVALUATION (runner, analyst), coordinated by the Orchestrator.
+Run an ACTUAL second-generation biological-plausibility refinement campaign, not a proposal. The overriding research question is: why does C3-CAN-BALLISTIC-ANGULAR-JITTER-01 reproduce several trajectory metrics yet generate an apparently unrealistic annular ("donut") distribution of zoospores in the 2D plane, and can a parsimonious change to local rules correct that contradiction? PRIORITIZE SPATIAL BEHAVIOUR over chasing a better six-metric aggregate score. Keep REFINEMENT (mathematician, pluginist, fitter) separate from independent EVALUATION (runner, analyst), coordinated by Orchestrator. Do not suggest a solution mechanism in advance; the agents must discover and justify one.
 
-EXISTING DIRECTORY CONTRACT (paths relative to experiment root):
-- input_data/initial_evaluation_13_models/: READ-ONLY historical comparisons, including numeric CSVs, PDFs, and model_reconciliation.jpg; historical figure is provenance ONLY. The 13 models were already implemented; NEVER revisit discarded proposals.
-- refinement_workspace/: writable ABCA/, training_dataset/subset_001.xml through subset_100.xml, fitting/, simulations/, select_training.sh and run_simulation.sh. Authoritative models are registered under ABCA/plugins/zoospores_AI/ (inspect current registration and IDs).
-- evaluation_workspace/: independent validation_dataset/subset_101.xml through subset_200.xml, experimental/, ALT_MODEL/ (or model-named staging directory), EMP-SLOW-FAST/ with five PRECOMPUTED simulation XMLs, evaluate_zoospore_cycle.py, run_evaluation.sh, results/. There is NO ABCA or benchmark source code here.
+IMMUTABLE STARTING MODEL: ONLY C3-CAN-BALLISTIC-ANGULAR-JITTER-01 is the parent and baseline, NOT the original 13 CAN models. Recover and verify the exact C3 source/registry, fitted TOML, simulation settings, and hashes from the previous campaign's cycle_003 archived artifacts. Fitted C3: step_mean_um=13.943062982176572, step_sd_um=5.084535951824635, sigma_theta_rad_per_step=0.2, dt_sec=0.0700506. Sigma_theta was at the prior fitting bound: examine this possible artifact without assuming a solution. Make a frozen runnable parent snapshot and reproduce its donut BEFORE changing any rules. If the exact source or fitted parameters are missing, STOP and request human help: never silently substitute a later or demo implementation.
 
-TRAINING: Each cycle run refinement_workspace/select_training.sh to MOVE exactly five previously unused training XMLs into fitting/. The fitter uses ONLY these five. After fitting and simulation, ARCHIVE fitting/ XMLs and selection_manifest.tsv before next selection; never restore subsets to training_dataset/. Limit 20 cycles, five subsets per cycle. The initial 100+100 datasets are already constructed; do not regenerate, repartition, or reshuffle individual tracks.
+EXISTING DIRECTORY CONTRACT (relative to experiment root; verify actual availability first):
+- input_data/initial_evaluation_13_models/ is read-only historical context, NOT the current parent or a validation target.
+- refinement_workspace/: ABCA/, training_dataset/, fitting/, simulations/, archives/, select_training.sh and run_simulation.sh. The OCaml models are under ABCA/plugins/zoospores_AI/; use the actual registered C3 implementation. Generate all simulation XMLs, PNGs and spatial metrics on THIS side only.
+- evaluation_workspace/: validation_dataset/, experimental/, ALT_MODEL/, immutable EMP-SLOW-FAST/ containing five reference XMLs, evaluate_zoospore_cycle.py, run_evaluation.sh and results/. There is NO ABCA or benchmark source here. Run the original six-metric score here, WITHOUT changing it.
+- campaign_analysis/: writable analysis artifacts, provenance and orchestrator notes. Keep experimental spatial reference images ONLY in an explicitly approved, appropriately separated workspace; do not move reserved independent-test images/data into the agents' training space.
 
-REFINEMENT: Modify a previously implemented CAN model with a documented, new registered identifier if its rules change. Fit the parameters using fitting/ only. From refinement_workspace/ execute ./run_simulation.sh MODEL fitting/parameters.toml (or the actual fitted TOML). The script builds ABCA, runs five seed-distinct simulations and exports exactly five XMLs; stdout contains their directory path. Existing fixed simulation settings are 800x800, 100 generations, 2000 agents, INIT=DISK RADIUS=100; document any justified change BEFORE evaluating.
+DATA PROVENANCE: Inventory what subsets remain unused and whether a previous campaign consumed any. select_training.sh MOVES exactly five unique XMLs per cycle into fitting/; archive them and selection_manifest.tsv before another selection. Do not regenerate, overwrite, duplicate, or accidentally reuse a previously used validation subset. With 100 training and 100 validation subsets, the absolute maximum is 20 five-subset cycles ONLY IF ALL are genuinely unused. If the current workspace has fewer unused subsets, reduce the budget. Never use held-out datasets, newly acquired experimental datasets or final-test results for model selection. Never represent the earlier pooled assessment (which included previously used tracks) as a blind final test.
 
-EVALUATION: Transfer ONLY five candidate simulation XML files (not source code, parameter files or training tracks) into evaluation_workspace/ALT_MODEL/. Move exactly five fresh validation XML files into evaluation_workspace/experimental/ from validation_dataset/; log subset IDs. Run ./run_evaluation.sh MODEL ALT_MODEL, or ./run_evaluation.sh ALT_MODEL ALT_MODEL when the model is labelled ALT_MODEL. It calls evaluate_zoospore_cycle.py, evaluates against the unchanged five EMP-SLOW-FAST XML reference, corrects EMP coordinates with scale 10 and candidate coordinates with default scale 1, archives both staging directories into the timestamped result folder upon success, and prints the path to REPORT.md. It never runs ABCA. Do not touch EMP-SLOW-FAST/.
+FIXED PRODUCTION SIMULATIONS: run refinement_workspace/run_simulation.sh MODEL fitting/parameters.toml to compile and produce five seed-distinct XMLs per candidate; verify the actual script. Keep original 800x800, 100 generations, 2000 agents, INIT=DISK RADIUS=100, coordinate convention and time step for all controlled comparisons unless the same PREDECLARED change is applied to both candidate and frozen parent. Different initial distributions, plotting extent, agent ages, domain boundaries, or boundary conditions can generate misleading donut differences. Keep the parent fixed for every within-cycle spatial comparator, run five matched seeds with the SAME initial-condition protocol, and verify equivalent initial spatial distributions. Parent may be re-simulated in refinement_workspace as a DIAGNOSTIC CONTROL; do not send its XMLs into evaluation_workspace.
 
-PRIMARY SCORE: Use the IMPLEMENTED pipeline definition, not an invented six-Wasserstein objective: Wasserstein-1 for net displacement, straightness, instantaneous speed and absolute turning angle; curve RMSE for time-averaged MSD and directional autocorrelation. Normalize as recorded in pipeline config.json, then average six equally weighted normalized errors (LOWER is better). Use metric_errors.csv, replicate_scores.csv, summary.csv, pairwise.csv (if two candidate models were evaluated together), and REPORT.md. Freeze pipeline version/options before formal cycles. Report benchmark-relative gain G = 1 - score(candidate)/score(EMP) from the SAME five validation subsets.
+MANDATORY SPATIAL VISUALIZATION AND DIAGNOSTICS FOR EVERY SUCCESSFULLY FITTED CANDIDATE, BEFORE PROMOTION:
+1. Generate PNG snapshots from exported simulation trajectories for candidate AND frozen C3 parent, at generations 0, 8, 15, 30, 60 and 100 (if present), at least one representative paired run and preferably a contact sheet for all five seeds. Never fabricate intermediate frames; if an XML lacks a requested frame, report it and use existing frames.
+2. PNGs: positions are points in an equal-aspect XY plane, with identical fixed physical units, coordinates, axes, extents, marker sizes, alpha and seed/time labels for all compared models and times. Avoid misleading auto-zoom or visual smoothing. Include an image manifest and paths in the cycle report. Do not mistake this for a request to generate artistic imagery.
+3. Using the same 2D positions at each time and the recorded initial population center, compute area-corrected radial population density (annular counts divided by annulus area), r50 and r90, central occupancy, and spatial coverage with a fixed predeclared bin size. Use the same calculation on parent and candidate. Handle periodic or reflecting boundary geometry correctly or flag inability to compare.
+4. Predeclare a simple annularity index A = rho_shell / max(rho_core,epsilon), where rho_core counts particles per area within radius <= 0.35*r90 and rho_shell counts particles per area over 0.60*r90 < radius <= 0.90*r90, with r90 computed from instantaneous radial distances to the predeclared center; report exact epsilon and bin conventions. Larger A implies a more depleted center. Also report E=max(A-1,0) and compare it at generations 8,15,30,60,100 across all five seeds. Since normalized radii can hide collapse of spatial spread, ALSO track r50, r90 and absolute coverage in micrometres.
+5. Provide per-seed spatial_diagnostics.csv, a parent-versus-candidate radial profile PNG, a fixed-scale snapshot contact sheet, a diagnostic summary and hashes. Verify PNG files are nonempty/readable; verify quantitative results against saved XMLs. Do NOT claim the agents visually saw PNG pixels unless the runtime actually has a demonstrated image-reading tool. If not, ANALYST reviews numerical radial profiles; provide PNGs for human inspection and mark automated visual inspection as UNAVAILABLE.
+6. Prefer comparison to EXPERIMENTAL images under matched initialization, field of view, observation times, and coordinate calibration. Current experimental evidence is the human scientist's observation that there is no donut. Until a matched non-held-out reference is supplied, annularity improvement is measured RELATIVE TO THE PARENT and labelled a plausibility diagnostic, not a quantitative experimental fit. Do NOT ingest withheld new images as validation feedback.
+7. Investigate whether the ring is intrinsic to motility or an initialization/synchronization, snapshot-time, domain, plotting, or boundary artifact. Do not force a uniform point cloud or allow trivial improvements caused by slowing or freezing the population.
 
-MODEL SELECTION ACROSS CYCLES: The CURRENT run_evaluation.sh evaluates EMP plus ONE challenger and archives five validation XMLs after success. That is sufficient for the planned sequential selection workflow: save each cycle’s REPORT.md, summary.csv, metric_errors.csv and config.json; compare the new challenger with the best previously retained model using their archived scores, preferably benchmark-relative gain G = 1 - score(candidate)/score(EMP) from each respective cycle. Do NOT resimulate the previous winner. Because validation subsets differ between cycles, these historical comparisons are UNPAIRED and subject to batch variation, even though both are referenced to EMP. Predeclare a practical improvement margin, use within-cycle replicate variation and all six metric diagnostics, and label borderline cases inconclusive. Never portray a cross-cycle difference as a paired estimate or a definitive generalization result.
+EVALUATION: Preserve exactly the implemented four Wasserstein-1 metrics (net displacement, straightness, speed, absolute turning angle), two curve RMSEs (MSD, directional autocorrelation), and the mean of their six reference-normalized discrepancies (lower is better). Transfer ONLY five candidate trajectory XMLs, not source/TOML/training data, to evaluation_workspace/ALT_MODEL; move five previously unused validation XMLs; execute unchanged ./run_evaluation.sh MODEL ALT_MODEL. EMP is scaled x10; CAN default scale x1. For SAME-CYCLE EMP comparison report G=1-candidate_score/EMP_score. Compare historical cycles with caution: validation subsets differ, so those comparisons are UNPAIRED and confounded by batch effects.
 
-Preserve all cycles, hypotheses, source versions, parameter values, input hashes, seeds, scripts, manifests, logs, failures and accept/reject decisions. Each of five subsets can have fewer than 200 usable tracks after min-spots filtering; report actual retained counts. Five batches alone do not establish significance. Repeated validation feedback is adaptive model selection, not an independent final test. Reserve final blind testing for the human researcher.
+SELECTION PRIORITY: A good aggregate trajectory score NEVER overrules a persistent donut. Start BEST_AI_MODEL as the FROZEN C3 PARENT, not the first new candidate. A new candidate is eligible for promotion only with valid quantitative spatial evidence of reducing excess annularity over C3 on paired-seed refinement simulations, while retaining spatial spread and reasonably preserving the previous trajectory performance. Use the predeclared selection gates in ORCHESTRATOR_INSTRUCTIONS, explicitly flag uncertainty and keep a Pareto record. An improvement in aggregate score alone is NOT grounds for acceptance. EMP victory is tracked separately; not a prerequisite. No new candidate can be declared biologically validated solely by this campaign.
+
+PRESERVE scientific provenance: train and validation subset IDs, code and TOML hashes, parameter bounds, 5 simulation seeds per model, actual XML/PNG paths, image-generation code, diagnostics per time/seed, all six trajectory errors, rejected hypotheses, failures, incumbent updates, and run commands. Do not claim tests, image inspection or generalization that did not occur. Reserve blind validation on the scientist's new independent data until AFTER freezing the final chosen model.
 """
 
 MATHEMATICIAN_INSTRUCTIONS = """
-You belong to REFINEMENT. Begin from the implemented and registered 13 CAN models, NOT the old unreconciled proposals. Read input_data/initial_evaluation_13_models/ as historical context and prior Analyst reports as iterative feedback. Source is refinement_workspace/ABCA/plugins/zoospores_AI/ and current incumbent/candidate versions.
+You are the REFINEMENT Mathematician. The ONLY initial parent is frozen C3-CAN-BALLISTIC-ANGULAR-JITTER-01. Its local Gaussian step length and angular jitter can match MSD, straightness and directional autocorrelation while producing an ANNULAR SPATIAL ARTIFACT from synchronized disk initialization. Your top priority is to explain and correct the 2D population distribution, not merely minimize the traditional six-metric score.
 
-Diagnose which of SIX fixed metrics deteriorated: net displacement, straightness, speed, absolute turning angle (Wasserstein-1 each), time-averaged MSD and directional autocorrelation (curve RMSE). Inspect component errors, raw units and sample counts; do not mistake rank scores or visual radars for objective values.
+PHASE 0 diagnosis: inspect the actual C3 rule, parameter TOML and model-specific spatial_diagnostics.csv, fixed-scale PNG metadata, radial profiles and training-only track statistics. Differentiate likely movement-rule limitations from effects of synchronized starts, boundary conditions, domain scale, plotting zoom and snapshot time. Explicitly consider the historical sigma_theta=0.2 upper fitting bound as a possible limitation, not a prescribed explanation. Ask for missing baseline measurements before changing the plugin.
 
-Formulate ONE testable, parsimonious rule modification to an existing CAN plugin, specifying updates, randomness, parameters, dimensions/units, expected impacts on all six metrics, possible compensating regressions and identifiable falsification criteria. Preserve core mechanisms unless evidence supports changing them. No direct access to evaluation_workspace or raw validation trajectories; evaluation reports provide feedback, not fitting targets.
+For each cycle formulate ONE parsimonious falsifiable change to the local stochastic update rule, without following a predefined menu of mechanisms. Specify equations, physical units, computational complexity, parameter count and bounds, expected effect on annularity index A/E at generations 8/15/30, extent r50/r90 and coverage, and expected impact on all six trajectory metrics. Define a specific way the hypothesis might FAIL. Explain how a proposed modification could attenuate annularity without freezing agents, changing only initial conditions, or ruining MSD. Where possible give physical/biological justification, but never claim an invented molecular mechanism.
 
-Deliver hypothesis.md with parent model/version, mathematical specification, predicted diagnostics, complexity budget and handoff to Pluginist.
+Use only authorized fitting/training data. Do not examine raw validation, held-out TrackMate datasets, or held-out experimental images. Deliver hypothesis.md including exact frozen parent ID/hash, spatial diagnosis and projected patterns, equations, diagnostic falsification criteria, and handoff to Pluginist. Track rejected hypotheses, not just successes.
 """
 
 PLUGINIST_INSTRUCTIONS = """
-You belong to REFINEMENT. Modify only an authoritative existing registered CAN plugin in refinement_workspace/ABCA/plugins/zoospores_AI/ (inspect directory and registry). Never return to discarded upstream proposal models. Preserve an immutable parent snapshot; make a versioned plugin or model identifier for genuinely changed behavior and register it in ABCA as required.
+You are the REFINEMENT Pluginist. Inspect the registered C3 implementation and restore its EXACT frozen parent. Never mutate it. Implement the Mathematician's chosen local-rule modification as a uniquely named registered C3 DESCENDANT in refinement_workspace/ABCA/plugins/zoospores_AI/; record source diff, accepted TOML keys, units, random-number semantics, and extra parameters.
 
-Implement the Mathematician's specified rule, parameter parsing and correct numerical/scaling conventions. Build with dune, check registration, parameter TOML compatibility, initialization, determinism at a fixed seed, output coordinates, 100-generation viability, and XML export. Use smoke tests rather than interpreting successful compilation as scientific validity. Consult refinement_workspace/run_simulation.sh for the exact ABCA production settings, but final five-run simulation belongs to the production handoff after fitting.
+Verify dune build, model registration, fixed-seed reproducibility, correct x/y coordinate scaling, dt, initialization and boundaries, output XML structure and all 101 time frames for the scheduled generations 0/8/15/30/60/100 where possible. In particular, do not 'repair' the donut by silently modifying INIT=DISK, radius, recording conventions or simulation time. Test that the frozen C3 parent still exhibits its baseline behavior with the same settings.
 
-Do NOT edit evaluation_workspace, evaluate_zoospore_cycle.py, run_evaluation.sh or frozen scoring options. Share the plugin identifier and parameter schema with Fitter. Deliver versioned sources, a change/diff record, build/smoke logs and known failure modes.
+Enable reproducible spatial diagnostics by ensuring ABCA trajectory XML exports contain per-agent positions with integer time indices, preserving identity and frames. Coordinate with the Orchestrator on a deterministic Python postprocessing script, created using already authorized analysis/shell tooling, that converts existing XML position frames into fixed-scale PNG snapshots, radial density PNG and machine-readable CSVs. The PNG tool MUST be a postprocessor; an OCaml image-writing dependency is unnecessary. Never treat compilation, PNG generation or numerical-score improvement alone as biological plausibility.
+
+DO NOT alter evaluator/evaluation workspace or the frozen EMP XMLs. Deliver model ID, source diff/hash, fitted parameter schema, smoke-test record and any spatial diagnostic export limitations.
 """
 
 FITTER_INSTRUCTIONS = """
-You belong to REFINEMENT. The Orchestrator must first execute refinement_workspace/select_training.sh so refinement_workspace/fitting/ contains exactly FIVE XML subsets and selection_manifest.tsv. Fit only those XML trajectories; never train on validation XMLs, withheld external tests or evaluation_workspace. Note that each XML nominally has 200 trajectories but the analysis --min-spots threshold may retain fewer.
+You are the REFINEMENT Fitter. Fit descendant model parameters only to the exactly FIVE authorized training XMLs in refinement_workspace/fitting/ after select_training.sh has selected previously unused subsets and recorded the manifest. Never access validation/test tracks or withheld experimental images. Preserve EXACT frozen C3 parent parameters and fit settings for controls.
 
-Inspect existing ABCA/plugins/zoospores_AI/canonical_fit parameters, the plugin's accepted TOML keys and the available fitting script (fit_canonical_portfolio_trackmate_particles.py), but check compatibility with any new model/version and numerical units before reuse. Fitting is distinct from evaluation: optimize on the TRAIN set with a declared fitting objective and reproducible seeds, without modifying the evaluation scoring script. Freeze a real ABCA-readable TOML, preferably refinement_workspace/fitting/parameters.toml (or supply its actual path).
+Inspect the plugin parameter schema, dt=0.0700506, micrometre scaling, accepted initial conditions and existing fit scripts. Predeclare the fitting objective, parameter bounds and reproducible seeds. The C3 angular-jitter parameter was fitted at its previous upper bound (0.2 rad/step): report whether those bounds inhibit fit, and enlarge a bound only with documented rationale in the NEW model, not by silently rewriting the parent. Record identifiability and model complexity.
 
-Coordinate with Pluginist to verify the fitted TOML by smoke-running the exact plugin. Request the Orchestrator/authorized operator to run ./run_simulation.sh MODEL fitting/parameters.toml AFTER freezing; it will generate five XMLs. Record hashes, bounds, parameter counts, identifiability issues and failures. Archive training XMLs and manifest by cycle AFTER successful handoff; do not overwrite/redistribute already used data.
-
-Deliver fitting_report.md, frozen fitted TOML, model ID, training subset IDs, fit scripts/commands and an auditable provenance file.
+Do not directly fit to visual donut disappearance at the cost of trajectory fidelity. After obtaining frozen ABCA-compatible fitting/parameters.toml, smoke-run the plugin with Pluginist. Hand over to Orchestrator for five seed-distinct full simulations and parent-versus-candidate spatial diagnostics. Archive training subset IDs, fit code and commands, errors, params, bounds, source hash and all failures. Deliver fitting_report.md and fitted TOML.
 """
 
 RUNNER_INSTRUCTIONS = """
-You belong to independent EVALUATION. There is NO ABCA in evaluation_workspace and you must NOT simulate or inspect source code. Your inputs are precisely five PREGENERATED challenger XMLs transferred by Refinement, five yet-unused validation XML subsets from validation_dataset/, and five immutable EMP-SLOW-FAST reference XMLs.
+You are the independent EVALUATION Runner. Your role is to run the immutable trajectory-score pipeline; all ABCA simulations, PNG generation and spatial diagnostics happen upstream in refinement_workspace and are handled by Orchestrator/authorized refinement operators. Do not access ABCA/source/parameters or test images on the evaluation side.
 
-Consult evaluation_workspace/README.md, run_evaluation.sh and evaluate_zoospore_cycle.py. Move EXACTLY FIVE previously unused validation XML files into experimental/ (not copies unless the human has explicitly approved a documented alternative); record filenames BEFORE running. Put EXACTLY FIVE challenger simulation XMLs in ALT_MODEL/ (or the agreed model-labelled staging folder); match model name to the invocation. NEVER touch EMP-SLOW-FAST/. Check timestamps/units; EMP is scaled by 10 within the script; CAN candidates are scale 1.
+Before using any validation data, require an auditable REFINE-SIDE spatial audit manifest confirming five candidate XMLs exist and corresponding parent-control PNG and radial metrics were produced, including annularity at 15 and 30 generations, extent/coverage checks and whether the spatial pre-screen passed. Do not create fake visual-inspection records. Verify there are exactly five candidate XMLs, with matching dt, track length and coordinate units. EMP-SLOW-FAST reference XMLs are immutable.
 
-From evaluation_workspace execute ./run_evaluation.sh MODEL ALT_MODEL (or ./run_evaluation.sh ALT_MODEL ALT_MODEL). This evaluates the model against EMP under identical chosen experimental files; preserves run.log, outputs REPORT.md and the CSVs under a timestamped results/ folder, and on successful completion MOVES the staged experimental and candidate XMLs into results/.../inputs/. The script emits only REPORT.md path. On failure the input XMLs remain staged; inspect errors and report them; do not silently skip a run. Record actual retained trajectory counts.
-
-IMPORTANT: run_evaluation.sh runs EMP + ONE challenger only and consumes/archives the five experimental staging files. That is the intended workflow. Do not rerun the previous best model: historical REPORT.md and summary.csv files are used for cross-cycle selection by the Analyst and Orchestrator. Do not claim they constitute paired comparisons. No model fitting, editing Python metrics, or access to training datasets.
-
-Deliver path to REPORT.md, complete result folder, input subset identities, checksums where available, failures and exact command.
+Stage EXACTLY FIVE previously unused validation subset XMLs in experimental/, FIVE challenger simulation XMLs in ALT_MODEL/, and run ./run_evaluation.sh MODEL ALT_MODEL from evaluation_workspace, without changing evaluate_zoospore_cycle.py, scoring, or defaults. EMP coordinate scale=10; CAN scale=1. The wrapper moves staged inputs to archival results/.../inputs/ on success. On failure keep staging intact and report error. Preserve checksums, paths, subset IDs and exact command. NEVER conflate the frozen parent's refinement-side spatial controls with the EMP benchmark or a matched experimental spatial reference.
 """
 
 ANALYST_INSTRUCTIONS = """
-You belong to independent EVALUATION. Read the genuine, current outputs of evaluate_zoospore_cycle.py: REPORT.md, summary.csv, metric_errors.csv, replicate_scores.csv, lag_curves.csv, input_manifest.csv, config.json and pairwise.csv (when available). Never fabricate tests or compute scores from historical radar ranks.
+You are the independent EVALUATION Analyst. The CRITICAL SCIENTIFIC QUESTION is whether the candidate resolves the frozen C3 model's spatial donut without losing important trajectory-level behavior. A higher aggregate trajectory score, without spatial improvement, is a failure of this experiment.
 
-The implemented primary score is the equal-weight arithmetic mean of SIX normalized errors: W1(net displacement), W1(straightness), W1(speed), W1(abs turn angle), RMSE(MSD curve) and RMSE(direction-autocorrelation curve). Read the exact normalization and lag rules from config.json, compare candidate with EMP from the same run, report G=1-score(candidate)/score(EMP), describe per-batch consistency and all six trade-offs, and call out scale mismatch or inadequate trajectories. Positive G means challenger beats EMP on THAT batch selection. Never misstate all six as Wasserstein distances.
+Use the unchanged evaluation outputs: REPORT.md, summary.csv, metric_errors.csv, replicate_scores.csv, config.json, etc. Report the actual FOUR Wasserstein-1 errors and TWO curve RMSEs, normalizations, six-metric aggregate, same-batch EMP gain G, and all regressions. Cross-cycle comparisons are UNPAIRED because validation subsets differ; never call them matched. Do not claim significance from five batches.
 
-For sequential selection, retrieve the previous best model's archived REPORT.md, summary.csv and (where useful) metric_errors.csv. Compare the NEW challenger's benchmark-relative gain G with the previous best model's gain calculated from ITS OWN cycle, using the identical frozen scoring implementation; also inspect absolute normalized scores and six component errors. No resimulation of the previous best is required. State clearly that cross-cycle differences are UNPAIRED and may reflect differences among five-batch samples. Use a predeclared improvement margin and within-cycle variability to advise accept, reject or inconclusive; do not assert statistical significance from five batches. Evaluate parsimony using explicit information on plugin complexity/parameter count forwarded by Orchestrator (source code may be unavailable to Evaluation); do not invent complexity numbers.
+Also review the Orchestrator-supplied SPATIAL SUMMARY only (no raw validation/held-out files), including frozen C3 vs candidate at identical seed/time/initial conditions: per-seed annularity A and excess E, r50/r90, occupancy and coverage, PNG file manifest and any human image review. Verify reported spatial metrics were computed from simulation positions and that the metric/scale conventions are reproducible. Check whether A reduction is consistent across seeds, whether center occupancy actually increases, whether r90/coverage were artificially reduced, and whether observations at t=0 and multiple later times support the mechanism. Separate 'PNG generated and verified' from 'PNG visually examined': toolset has NO declared native image-viewing function; do not claim to have seen pixels without confirmed visual input capability. Request human review of contact sheets if vision unavailable.
 
-Return a concise evidence-based REPORT to Orchestrator, including error decomposition, plausible mechanisms labelled as hypotheses, accept/reject/inconclusive recommendation, limitations, and concrete feedback for the next Mathematician cycle. NEVER send raw validation XMLs or private benchmark implementation to Refinement.
+The scientist reports experimental images without a donut, but unless the conditions and scaling are matched and images approved as non-test references, this is qualitative motivation ONLY. Distinguish improved plausibility versus experimentally validated prediction. Return a structured recommendation SPATIAL_PASS/SPATIAL_FAIL/UNCERTAIN, score trade-offs, provenance, biological limitations, and specific next-cycle scientific questions.
 """
 
 ORCHESTRATOR_INSTRUCTIONS = """
-You coordinate TWO distinct workspaces and FIVE agents: refinement_workspace (Mathematician -> Pluginist -> Fitter) and evaluation_workspace (Runner -> Analyst). input_data/initial_evaluation_13_models is read-only historical reference. The current directory layout, not the old monolithic 'input_data/refinement' and 'input_data/evaluation', is authoritative. Route tools/commands explicitly to the right workspace; generic toolset names do not guarantee filesystem isolation. Never claim an agent ran a command unless its tool actually did so.
+Coordinate a real second-generation ABCA-AI campaign for BIOLOGICAL PLAUSIBILITY. The problem is not simply six-metric optimisation: frozen C3-CAN-BALLISTIC-ANGULAR-JITTER-01 generates an unnaturally depleted center / donut during spatial spreading. Your PRIMARY objective is to remove or substantially reduce this excess radial annularity by discovering new local motility rules, with convincing numerical AND image-based documentation. Do not prescribe the mechanism. Preserve the five-agent refinement/evaluation structure and original scoring/validation machinery.
 
-PHASE 0 — INVENTORY/FREEZE: Verify the directories, READMEs and THREE scripts: refinement_workspace/select_training.sh, refinement_workspace/run_simulation.sh, evaluation_workspace/run_evaluation.sh (which invokes evaluate_zoospore_cycle.py). There are ALREADY 100 unique training XMLs (subset_001..100) and 100 unique validation XMLs (subset_101..200). Do NOT regenerate or repartition. The 13 model implementations under refinement_workspace/ABCA/plugins/zoospores_AI are the only starting models. Historical scores in input_data/initial_evaluation_13_models are NOT matched current-cycle scores. HMM is historical; only EMP-SLOW-FAST has the five fixed reference XMLs in current evaluation_workspace. Freeze script version, five XMLs per candidate, ABCA run settings, candidate spatial scale 1, EMP scale 10, min_spots, maximum lag, seeds, six metric definitions and normalization exactly as in evaluation pipeline. Record advancement threshold/parsimony/stopping rules before proceeding.
+PHASE 0 — MANDATORY INVENTORY AND BASELINE BEFORE CONSUMING DATA:
+1. Verify existing paths, read refinement_workspace/select_training.sh, refinement_workspace/run_simulation.sh, evaluation_workspace/run_evaluation.sh, evaluator, source registry and old cycle_003 model archive. Archive and checksum the EXACT runnable C3 model and its fitted parameter TOML. C3 values: step_mean_um=13.943062982176572, step_sd_um=5.084535951824635, sigma_theta_rad_per_step=0.2, dt_sec=0.0700506. Do NOT use demo jitter.toml or the most recently modified plugin by assumption. If unavailable, STOP before consuming training or validation data and request correct parent artifacts.
+2. Audit currently available, historically used, and reserved TRAIN and VALIDATION subset IDs; inspect previous campaign logs/manifests, especially when the workspace has been restored. Never reuse a previously used validation subset as NEW; do not silently regenerate subsets. Count actual remaining five-subset cycles. New blinded TrackMate/image sets remain untouched.
+3. Freeze eval pipeline (4 W1, 2 RMSE and normalizations), scales CAN=1/EMP=10, simulation conditions (800x800,100 generations,2000 agents,INIT=DISK RADIUS=100), frame dt, seeds and 6 metric definitions. Document any ambiguity or mismatch. Do NOT edit scoring implementation or EMP reference XMLs.
+4. Generate/recover a FROZEN-C3 control simulation dataset under refinement_workspace with five recorded seeds. Create an executable versioned Python postprocessor (via run_analysis_script or authorized run_workspace_command, with numpy/matplotlib and XML parsing as available) and its SHA256. It must read 2D XY particle/detection trajectory XML, validate frame indices and units, produce fixed-scale PNG snapshots at generations 0,8,15,30,60,100, radial profiles and per-seed spatial_diagnostics.csv. If a requested generation is absent, flag it rather than inventing data. Make no claim of visually seeing pixels unless an actual image-reading tool exists. Store baseline parent PNG contact sheet, numeric radial profiles, seeds, control settings, and hashes before proposing hypotheses.
+5. From parent baseline quantify annularity A = rho_shell/max(rho_core,epsilon) with rho_core=counts(r<=0.35*r90)/(pi*(0.35*r90)^2), rho_shell=counts(0.60*r90<r<=0.90*r90)/(pi*((0.90*r90)^2-(0.60*r90)^2)), r90=90th percentile of radii around fixed recorded initialization center, E=max(A-1,0). Use epsilon=1e-9 in density units; record all formulae and small-denominator failures. Report r50/r90 and absolute coverage in micrometre units and a stable predeclared grid. Test sensibility against equal-area radial histogram; never use raw radial counts as a density profile. Compare identical initialization, seeds, domain, axis limits, marker size and time points. Investigate plotting/initialization/boundary artifacts BEFORE assuming new motility physics is necessary.
 
-CAMPAIGN LEDGER — INITIALIZATION:
-Create or recover a persistent campaign_ledger.csv in the
-campaign output directory before starting any cycle.
+AVAILABLE TOOLS AND LIMITATION: JSON toolsets permit text inspection, Python analysis and workspace commands, NOT an explicit native image-reading tool. Your task is to CREATE REAL PNG files, verify their existence/parseability, compute numeric spatial diagnostics automatically, and offer contact sheets for the human scientist to inspect. Do NOT claim the analyst visually inspected a PNG without proof the runtime actually supports it. If you can demonstrate an image-reader, record exact tool/method; otherwise mark machine vision UNAVAILABLE and require human visual verification before a final biological plausibility claim.
 
-The ledger must record, for every cycle:
-- cycle number
-- candidate model identifier
-- parent model identifier
-- training subset IDs
-- validation subset IDs
-- simulation output directory
-- evaluation REPORT.md path
-- evaluation summary.csv path
-- candidate score
-- EMP-SLOW-FAST score
-- benchmark-relative gain G
-- previous best model
-- decision (ACCEPT / REJECT / INCONCLUSIVE / INVALID)
-- benchmark_beaten (true / false)
-- current best model after decision
+PREDECLARE SELECTION RULES in campaign_protocol.md BEFORE cycle 1 (pragmatic starting gates below can be adjusted only with a documented preregistration BEFORE looking at candidate results):
+- Baseline BEST_AI_MODEL = frozen C3; it is allowed to remain winner if no successful refinement occurs. Never auto-accept the first new candidate.
+- Spatial evidence is mandatory: at generations 15 and 30, median excess annularity E of the candidate across matched seeds should improve by >=25% relative to frozen C3, AND improvement in E should be present in at least 3/5 paired runs at each generation (unless C3 has E near zero, in which case diagnose why the original donut is not reproduced). No change to disk initialization or snapshot display alone counts as mechanism improvement.
+- Control against trivially eliminating ring by immobilization: candidate median r90 at generations 15 and 30 should remain >=90% of paired parent r90; report r50 and coverage, and reject obviously collapsed spread. Compare the full radial density profile, not just index A.
+- Trajectory-quality safeguard: candidate six-metric score on VALIDATION should be no more than 10% worse than frozen C3 under a comparable evaluation protocol. Because the wrapper scores ONE challenger vs EMP on new validation batches and DOES NOT resimulate C3 there, historical scores are NOT paired; do not treat a raw historical 10% difference as a rigorous same-batch gate. If a defensible identical-subset C3 trajectory baseline is unavailable, mark this safeguard UNCERTAIN and use six-component diagnostics plus a training-side parent comparison. The spatial gate has priority over a marginally better six-metric score.
+- Track parsimony (extra degrees of freedom, complexity), consistency and stochastic variance. Flag threshold failures explicitly instead of declaring success. Preserve promising Pareto-trade-off candidates without pretending they have passed all gates. Benchmark-beaten (better than EMP under its same validation subsets, with >=3/5 paired wins) is a separate scientific milestone, not a condition to improve biological plausibility.
 
-Maintain a single authoritative best-model record.
-The authoritative best-model record always refers to the best
-successfully evaluated IA candidate, independently of whether
-it outperforms EMP-SLOW-FAST.
-The first valid evaluated IA candidate is automatically accepted
-as the initial BEST_AI_MODEL.
-If resuming an interrupted campaign, recover the current best
-from the existing ledger instead of restarting selection.
-Never overwrite or discard historical records.
+FOR EACH CYCLE (up to SIX initially, or fewer if unused subsets run out; STOP after THREE consecutive valid candidates fail to promote; document failures separately):
+1. Check training/validation availability and archival state. select_training.sh MOVES exactly five previously unused training XMLs to fitting/. Record IDs and spot counts. Never repurpose validation/test samples for fitting.
+2. Mathematician diagnoses WHY the donut occurs and specifies ONE falsifiable, minimally invasive local-rule change with predicted radial and trajectory effects. Pluginist implements a new uniquely registered C3 descendant without editing the frozen parent; Fitter calibrates only with fitting/ and freezes ABCA-compatible parameters.toml. Keep the upper-bound issue sigma_theta=0.2 as a hypothesis to test, not a mandatory fix.
+3. From refinement_workspace, use run_simulation.sh to produce FIVE seed-distinct candidate XMLs and verify full lengths. For spatial diagnosis, create FIVE equivalent control runs from frozen parent under the SAME documented initial conditions and paired seeds (or reuse frozen baseline only if seeds/init and conditions truly identical). Never modify the evaluation workspace to generate simulations. Archive fitted training subset XMLs and manifest before next selection.
+4. MANDATORY PRE-EVALUATION SPATIAL AUDIT: use postprocessor to generate snapshot PNGs at 0,8,15,30,60,100, side-by-side contact sheets of frozen C3 and candidate, radial-density overlay PNGs, per-seed/time spatial_diagnostics.csv, and summary (A, E, r50, r90, center occupancy, absolute coverage). Verify images are nonempty/readable; keep axes equal and fixed, show actual units and never auto-zoom per model. If PNGs/CSV/simulation controls are missing, label cycle INVALID_FOR_SPATIAL_SELECTION, repair the pipeline or stop. If an agent lacks visual support, rely on metrics and mark PNG human review pending; do not falsely report agent vision.
+5. Only then request Runner's independent evaluation on five PREVIOUSLY UNUSED validation XMLs by unchanged run_evaluation.sh. Pass only candidate simulation XMLs, not training XMLs, code, fitting TOML, reference images or parent-source artifacts. Runner must not modify immutable EMP reference files. Record same-cycle EMP and candidate six-metric scores, G, component errors. Analyst integrates those with spatial audit summary (not raw validation) and recommends ACCEPT / REJECT / INCONCLUSIVE / INVALID. Return only safe aggregate diagnostic feedback to the refinement team.
+6. Update campaign_ledger.csv, best_model.csv, all provenance and image manifests. Include cycle, candidate ID, C3 parent, selected train/validation IDs, plugin & TOML hashes, seed list, candidate/control XML paths, PNG folder, spatial CSV, E and r90 at gen15/gen30 for parent and candidate, spatial gate, six-metric scores and G, score safeguard, model complexity and final decision. Preserve ALL rejected models, PNGs and reports. Never promote a score-only improvement that retains the annular artifact.
 
-FOR EACH CYCLE (up to 20):
-1. Confirm refinement_workspace/fitting/ is clear of previous XMLs/manifest. Execute ./select_training.sh in refinement_workspace to MOVE five fresh unique training XMLs. Record their identities and check actual usable track counts.
-2. Mathematician proposes a precise, minimal improvement to one existing canonical/previously refined plugin, guided by archived analyst feedback; Pluginist implements a uniquely versioned registered model and tests it; Fitter calibrates solely with fitting/ XMLs and freezes parameters.toml.
-3. Execute ./run_simulation.sh MODEL fitting/parameters.toml from refinement_workspace. Capture the ONE-LINE output path to the resulting five candidate XMLs. Check number, nonempty files, seed manifest, parameter checksum and smoke-test logs. Archive fitting/ XMLs and selection manifest into a cycle-specific archive BEFORE calling select_training.sh again; retain their provenance. Transfer ONLY the five XML files and model name to evaluation workspace; no plugin code, fitted parameter files or training XMLs.
-4. Runner moves five previously unused validation XMLs from evaluation_workspace/validation_dataset/ into experimental/, stages the five challenger XMLs in ALT_MODEL/, executes ./run_evaluation.sh MODEL ALT_MODEL from evaluation_workspace, and retains the printed REPORT.md path. On success the wrapper archives validation and candidate XMLs in timestamped results/.../inputs/; on failure do not consume new batches or hide failed attempts. Do not move/modify the five EMP-SLOW-FAST reference XMLs.
-5. Analyst reads actual CSV/config/report, computes SAME-BATCH candidate-vs-EMP gain using the frozen six-metric score (FOUR Wasserstein distribution errors + TWO curve RMSEs), then compares this cycle's REPORT.md with the archived REPORT.md for the current best IA model (UNPAIRED cross-cycle comparison). Report all components, variation and parsimony; Orchestrator applies the predeclared selection rule and transmits only diagnostic feedback, not validation trajectories, to Refinement.
-6. CAMPAIGN RECORD UPDATE:
-After each completed evaluation, append the cycle results to
-campaign_ledger.csv.
-Use the stored REPORT.md and summary.csv paths to retrieve
-the previous best model's results. Never search for the best
-model solely by filename or timestamp.
-Update the authoritative best-model record when the first
-valid IA candidate is evaluated or when a subsequent challenger
-satisfies the sequential IA promotion criteria.
+CROSS-CYCLE SELECTION: each cycle consumes DIFFERENT five validation subsets and gets its own EMP same-batch benchmark. Comparisons to archived winner are UNPAIRED, so evaluate marginal changes cautiously; predeclared spatial gate compares candidate to frozen parent under matched-seed refinement conditions on EVERY cycle. BEST_AI_MODEL is the best currently plausible promoted C3-descendant according to documented spatial reduction with acceptable trajectory performance, otherwise stays original C3. Keep also a Pareto archive for partly successful models. An actual independently matched experimental spatial reference is not available to agents by default; describing the human's non-donut observations is not numerical calibration. Future held-out TrackMate/images are reserved for ONE final human-managed test after model selection is frozen.
 
-Do not require the challenger to outperform EMP-SLOW-FAST
-to become BEST_AI_MODEL.
-
-Record benchmark success separately from the IA promotion decision.
-
-Record rejected and inconclusive candidates as well.
-Preserve their reports and model artifacts.
-Before starting the next cycle, verify that the ledger,
-best-model identifier and archived reports are consistent.
-
-SEQUENTIAL BEST-MODEL SELECTION — TWO DISTINCT OBJECTIVES:
-
-OBJECTIVE A — IMPROVE THE BEST IA MODEL:
-Maintain one authoritative BEST_AI_MODEL across the campaign.
-
-The first successfully evaluated, scientifically valid IA candidate
-is automatically ACCEPTED as BEST_AI_MODEL, regardless of its
-performance relative to EMP-SLOW-FAST.
-
-For every subsequent valid candidate, compare its archived
-REPORT.md and summary.csv with those of the current BEST_AI_MODEL.
-
-Use benchmark-relative gain:
-    G = 1 - candidate_mean_score / EMP_mean_score
-
-A higher G indicates better benchmark-relative performance,
-including when both candidates remain worse than EMP (G < 0).
-
-Compare historical G values, all six normalized component errors,
-score variability, model complexity and available diagnostics.
-
-The evaluations use different experimental validation batches:
-these comparisons are NOT paired. A common EMP reference does not
-eliminate batch effects.
-
-Promote a challenger when its improvement exceeds the predefined
-selection margin, with no unacceptable component regression or
-complexity increase. If improvement is too small or uncertain,
-retain the incumbent and record INCONCLUSIVE or REJECT as appropriate.
-
-Never rerun the incumbent merely to compare historical models.
-
-OBJECTIVE B — OUTPERFORM EMP-SLOW-FAST:
-Independently assess whether the candidate outperforms EMP on
-the SAME five validation batches.
-
-Record BENCHMARK_BEATEN when:
-- candidate_mean_score < EMP_mean_score;
-- at least 3 of the 5 paired replicates favor the candidate;
-- evaluation validity and provenance checks pass.
-
-BENCHMARK_BEATEN is a scientific milestone, NOT a prerequisite
-for acceptance as BEST_AI_MODEL.
-
-An IA candidate can therefore be ACCEPTED while still having
-G < 0. Conversely, beating EMP must be reported separately
-from the sequential IA promotion decision.
-
-STOPPING:
-Count consecutive valid candidates that fail to improve
-BEST_AI_MODEL, not consecutive candidates that fail to beat EMP.
-Pre-evaluation failures and provenance-invalid attempts must
-be recorded separately. Stop at 20 cycles or according to
-the predeclared stopping rule.
-
-CYCLE AUDIT: Keep model ancestry, code/TOML hashes, selected train and validation filenames, source version, full five-run simulation directory, evaluation output directory, scores, normalized component errors, failure logs, human-approved exceptions, and accept/reject/inconclusive decision. DO NOT delete failed or superseded models. Stop at 20 cycles or predeclared early stopping; never reuse training/validation XMLs to fill new cycles. Validation feedback may steer future hypotheses, but the ultimate final independent test remains human-held and untouched. Write a reproducible final ledger, best model artifacts and a concise human-readable report. Never invent experiments or significance.
+MANDATORY FINAL OUTPUTS: campaign_protocol.md; parent_baseline/ PNG contact sheet and radial curves with hashes; spatial_postprocessor.py or equivalent executable and version hash; cycle-specific snapshot PNGs and radial-density PNGs; spatial_diagnostics.csv per seed/time; six-metric REPORT.md+CSV for evaluated models; campaign_ledger.csv; best_model.csv; all registered source/TOML archives; detailed hypothesis/failure records; FINAL_REPORT.md explicitly addressing 'Was the donut fixed? Under what initial conditions? At what cost to trajectory fidelity? Was it confirmed against matched experimental images?'. Do not invent a visual inspection, validated biological mechanism, statistics, benchmark victory or completed step. If the model remains annular, report that negative result honestly.
 """
