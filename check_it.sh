@@ -219,7 +219,11 @@ from source.tools.shell_workspace import _run_workspace_command_impl
 
 result = _run_workspace_command_impl("""
 set -e
-test -d /data/initial_evaluation_13_models
+test -d /data/evaluation_CAN_BallisticAngularJitter_01
+test -f /data/evaluation_CAN_BallisticAngularJitter_01/REPORT.md
+test -d /data/evaluation_CAN_BallisticAngularJitter_01/Zoospore_distribution
+test -f /refinement/ABCA/plugins/CAN_BallisticAngularJitter_01/zoospores_BallisticAngularJitter_01.ml
+test -f /refinement/ABCA/plugins/CAN_BallisticAngularJitter_01/BallisticAngularJitter_01.toml
 test -f /refinement/ABCA/dune-project
 test -f /refinement/select_training.sh
 test -f /refinement/run_simulation.sh
@@ -241,7 +245,7 @@ echo "========================================================================"
 echo "7. ABCA build inside the actual agent shell (modelling team)"
 echo "========================================================================"
 
-if [[ "$TEAM" == "modelling" || "$TEAM" == "refinement" ]]; then
+if [[ "$TEAM" == "modelling" || "$TEAM" == "refinement" || "$TEAM" == "biological_plausibility" ]]; then
 "$AGENT_PY" - "${CONFIG_ARGS[@]}" <<'PY'
 from source.config import ANALYSIS_TIMEOUT
 from source.tools.shell_workspace import _run_workspace_command_impl
