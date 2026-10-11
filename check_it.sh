@@ -12,7 +12,13 @@ fi
 TEAM="$1"
 PROFILE="${2:-}"
 
-CONFIG_ARGS=(--team "$TEAM")
+CONFIG_ARGS=(
+    --team "$TEAM"
+    --abca-dir runs/refinement_workspace/ABCA
+    --input-data-dir runs/input_data
+    --analysis-dir runs/campaign_analysis
+    --plugin-dir runs/refinement_workspace/ABCA/plugins/zoospores_AI
+)
 if [[ -n "$PROFILE" ]]; then
     CONFIG_ARGS+=(--profile "$PROFILE")
 fi
@@ -202,12 +208,40 @@ PY
 test "$(cat "$SHELL_OUTPUT")" = "SHELL_TOOL_OK"
 echo "shell tool write verified in analysis workspace"
 
+
+echo "Checking new workspaces..."
+
+"$AGENT_PY" - --team refinement \
+  --abca-dir runs/refinement_workspace/ABCA \
+  --input-data-dir runs/input_data \
+  --analysis-dir runs/campaign_analysis <<'PY'
+from source.tools.shell_workspace import _run_workspace_command_impl
+
+result = _run_workspace_command_impl("""
+set -e
+test -d /data/initial_evaluation_13_models
+test -f /refinement/ABCA/dune-project
+test -f /refinement/select_training.sh
+test -f /refinement/run_simulation.sh
+test -f /evaluation/run_evaluation.sh
+test -f /evaluation/evaluate_zoospore_cycle.py
+test -d /evaluation/validation_dataset
+test -d /evaluation/EMP-SLOW-FAST
+echo WORKSPACES_OK
+""", timeout_seconds=30)
+
+print(result)
+assert "EXIT CODE: 0" in result
+assert "WORKSPACES_OK" in result
+PY
+
+
 echo
 echo "========================================================================"
 echo "7. ABCA build inside the actual agent shell (modelling team)"
 echo "========================================================================"
 
-if [[ "$TEAM" == "modelling" ]]; then
+if [[ "$TEAM" == "modelling" || "$TEAM" == "refinement" ]]; then
 "$AGENT_PY" - "${CONFIG_ARGS[@]}" <<'PY'
 from source.config import ANALYSIS_TIMEOUT
 from source.tools.shell_workspace import _run_workspace_command_impl
@@ -238,12 +272,14 @@ command -v ocamlfind
 printf 'cairo2 package: '
 ocamlfind query cairo2
 
-if [[ -f /data/ABCA/dune-project ]]; then
+if [[ -f /refinement/ABCA/dune-project ]]; then
+    source_dir=/refinement/ABCA
+elif [[ -f /data/ABCA/dune-project ]]; then
     source_dir=/data/ABCA
 else
-    printf 'ABCA repository not found at /data/ABCA (expected dune-project).\n' >&2
-    printf 'Visible candidate dune-project files:\n' >&2
-    find /data -maxdepth 4 -name dune-project -print 2>/dev/null | head -20 >&2
+    printf 'ABCA repository not found in either workspace.\n' >&2
+    printf 'Checking available locations:\n' >&2
+    ls -la /refinement/ABCA /data/ABCA 2>&1 || true
     exit 21
 fi
 
